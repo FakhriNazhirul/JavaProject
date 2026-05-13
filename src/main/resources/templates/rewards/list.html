@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout}">
+<head>
+    <title>Rewards - Organix</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div></div>
+            <a th:href="@{/rewards/new}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add New Reward
+            </a>
+        </div>
+
+        <!-- Redeem Section -->
+        <div class="card mb-4">
+            <div class="card-header">Redeem Reward</div>
+            <div class="card-body">
+                <form th:action="@{/rewards/redeem}" method="post" class="row g-3">
+                    <div class="col-md-4">
+                        <select class="form-select" name="userId" required>
+                            <option value="">-- Select User --</option>
+                            <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.name + ' (' + u.points + ' pts)'}">User</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select" name="rewardId" required>
+                            <option value="">-- Select Reward --</option>
+                            <option th:each="r : ${rewards}" th:value="${r.id}" th:text="${r.name + ' (' + r.priceInPoints + ' pts)'}">Reward</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control" name="quantity" value="1" min="1" placeholder="Qty">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-warning w-100">Redeem</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Rewards Grid -->
+        <div class="row">
+            <div class="col-md-4 mb-4" th:each="reward : ${rewards}">
+                <div class="reward-card card">
+                    <div class="reward-image">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <div class="reward-body">
+                        <h5 class="reward-title" th:text="${reward.name}">Reward Name</h5>
+                        <p class="text-muted small" th:text="${reward.description}">Description</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="reward-points" th:text="${reward.priceInPoints + ' pts'}">1000 pts</span>
+                            <span class="reward-stock" th:text="${'Stock: ' + reward.stock}">Stock: 10</span>
+                        </div>
+                        <div class="action-btns mt-3">
+                            <a th:href="@{/rewards/edit/{id}(id=${reward.id})}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a th:href="@{/rewards/delete/{id}(id=${reward.id})}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this reward?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(rewards)}" class="col-12">
+                <div class="empty-state">
+                    <i class="fas fa-gift"></i>
+                    <h4>No rewards available</h4>
+                    <p>Add some rewards to get started</p>
+                    <a th:href="@{/rewards/new}" class="btn btn-success">Add Reward</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

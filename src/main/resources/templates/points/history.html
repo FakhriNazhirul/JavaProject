@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout}">
+<head>
+    <title>Points - Organix</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- User Selection -->
+        <div class="card mb-4">
+            <div class="card-header">Select User to View Points</div>
+            <div class="card-body">
+                <div class="d-flex gap-2">
+                    <select id="userSelect" class="form-select">
+                        <option value="">-- Select User --</option>
+                        <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.name + ' - ' + u.points + ' points'}" th:selected="${selectedUser?.id == u.id}">User</option>
+                    </select>
+                    <button type="button" class="btn btn-primary" onclick="viewUserPoints()">View Points</button>
+                </div>
+                <script>
+                    function viewUserPoints() {
+                        var userId = document.getElementById('userSelect').value;
+                        if (userId) {
+                            window.location.href = '/points/user/' + userId;
+                        } else {
+                            alert('Please select a user first.');
+                        }
+                    }
+                </script>
+            </div>
+        </div>
+
+        <div class="row" th:if="${selectedUser}">
+            <!-- User Info -->
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-header">User Info</div>
+                    <div class="card-body">
+                        <h5 th:text="${selectedUser.name}">User Name</h5>
+                        <p class="text-muted" th:text="${selectedUser.email}">email@example.com</p>
+                        <hr>
+                        <div class="text-center">
+                            <h2 class="text-success" th:text="${selectedUser.points}">0</h2>
+                            <p class="text-muted">Available Points</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Redeem Form -->
+                <div class="card mt-3">
+                    <div class="card-header">Redeem Points</div>
+                    <div class="card-body">
+                        <form th:action="@{/points/redeem}" method="post">
+                            <input type="hidden" name="userId" th:value="${selectedUser.id}">
+                            <div class="mb-3">
+                                <label class="form-label">Points to Redeem</label>
+                                <input type="number" class="form-control" name="points" min="1" th:max="${selectedUser.points}" required>
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100">
+                                <i class="fas fa-coins"></i> Redeem Points
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Points History -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">Points History</div>
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="ph : ${userPoints}">
+                                    <td th:text="${#temporals.format(ph.createdAt, 'dd MMM yyyy HH:mm')}">13 May 2026</td>
+                                    <td>
+                                        <span th:class="${ph.type == 'ADD' ? 'badge bg-success' : 'badge bg-danger'}" th:text="${ph.type}">ADD</span>
+                                    </td>
+                                    <td th:text="${ph.description}">Description</td>
+                                    <td th:class="${ph.points > 0 ? 'text-success' : 'text-danger'}" th:text="${ph.points}">100</td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(userPoints)}">
+                                    <td colspan="4" class="text-center py-4">
+                                        <i class="fas fa-coins d-block mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
+                                        No points history
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div th:if="${selectedUser == null}" class="text-center py-5">
+            <i class="fas fa-hand-pointer d-block mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+            <p class="text-muted">Select a user above to view their points history</p>
+        </div>
+    </div>
+</body>
+</html>

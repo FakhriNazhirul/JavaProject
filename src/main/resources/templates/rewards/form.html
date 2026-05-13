@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout}">
+<head>
+    <title>Reward Form - Organix</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="card">
+            <div class="card-header" th:text="${isEdit} ? 'Edit Reward' : 'Add New Reward'">Reward Form</div>
+            <div class="card-body">
+                <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger">
+                    Please correct the errors below.
+                </div>
+                <form th:action="@{/rewards/save}" th:object="${reward}" method="post">
+                    <input type="hidden" th:field="*{id}">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Reward Name</label>
+                        <input type="text" class="form-control" th:field="*{name}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" th:field="*{description}" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Price (Points)</label>
+                            <input type="number" step="0.01" class="form-control" th:field="*{priceInPoints}" required>
+                            <div th:if="${#fields.hasErrors('priceInPoints')}" th:errors="*{priceInPoints}" class="text-danger small">Error</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Stock</label>
+                            <input type="number" class="form-control" th:field="*{stock}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Image URL (optional)</label>
+                        <input type="text" class="form-control" th:field="*{imageUrl}" placeholder="https://...">
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                        <a th:href="@{/rewards}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

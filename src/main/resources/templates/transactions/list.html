@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout}">
+<head>
+    <title>Transactions - Organix</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div></div>
+            <a th:href="@{/transactions/new}" class="btn btn-success">
+                <i class="fas fa-plus"></i> New Transaction
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Category</th>
+                            <th>Weight (kg)</th>
+                            <th>Points Earned</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="tx : ${transactions}">
+                            <td th:text="${tx.id}">1</td>
+                            <td th:text="${tx.userId}">1</td>
+                            <td th:text="${tx.kategoriSampahId}">1</td>
+                            <td th:text="${tx.weight}">10.5</td>
+                            <td>
+                                <span class="badge bg-success" th:text="${tx.totalPoints}">1050</span>
+                            </td>
+                            <td>
+                                <span class="badge-status badge-completed" th:text="${tx.status}">PENDING</span>
+                            </td>
+                            <td th:text="${#temporals.format(tx.createdAt, 'dd MMM yyyy')}">13 May 2026</td>
+                            <td>
+                                <a th:href="@{/transactions/delete/{id}(id=${tx.id})}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this transaction?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(transactions)}">
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fas fa-recycle d-block mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
+                                No transactions yet
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

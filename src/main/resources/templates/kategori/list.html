@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout}">
+<head>
+    <title>Categories - Organix</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div></div>
+            <a th:href="@{/kategori/new}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add New Category
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Category Name</th>
+                            <th>Description</th>
+                            <th>Points per Kg</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="k : ${kategori}">
+                            <td th:text="${k.id}">1</td>
+                            <td th:text="${k.name}">Plastic</td>
+                            <td th:text="${#strings.abbreviate(k.description, 50)}">Description...</td>
+                            <td>
+                                <span class="badge bg-success" th:text="${k.pointsPerKg}">100</span>
+                            </td>
+                            <td th:text="${#temporals.format(k.createdAt, 'dd MMM yyyy')}">13 May 2026</td>
+                            <td>
+                                <div class="action-btns">
+                                    <a th:href="@{/kategori/edit/{id}(id=${k.id})}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a th:href="@{/kategori/delete/{id}(id=${k.id})}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this category?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(kategori)}">
+                            <td colspan="6" class="text-center py-4">
+                                <i class="fas fa-tags d-block mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
+                                No categories yet
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

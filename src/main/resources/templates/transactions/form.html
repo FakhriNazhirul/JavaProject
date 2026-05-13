@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout}">
+<head>
+    <title>New Transaction - Organix</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="card">
+            <div class="card-header">New Waste Transaction</div>
+            <div class="card-body">
+                <form th:action="@{/transactions/save}" th:object="${transaction}" method="post">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Select User</label>
+                            <select class="form-select" th:field="*{userId}" required>
+                                <option value="">-- Select User --</option>
+                                <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.name + ' (' + u.email + ')'}">User Name</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Waste Category</label>
+                            <select class="form-select" th:field="*{kategoriSampahId}" required>
+                                <option value="">-- Select Category --</option>
+                                <option th:each="k : ${kategori}" th:value="${k.id}" th:text="${k.name + ' (' + k.pointsPerKg + ' pts/kg)'}">Category</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Weight (kg)</label>
+                            <input type="number" class="form-control" th:field="*{weight}" step="0.1" min="0.1" required onchange="calculatePoints()">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Points Earned</label>
+                            <input type="number" class="form-control" th:field="*{totalPoints}" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" th:field="*{status}">
+                            <option value="PENDING">PENDING</option>
+                            <option value="COMPLETED">COMPLETED</option>
+                            <option value="CANCELLED">CANCELLED</option>
+                        </select>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Save Transaction
+                        </button>
+                        <a th:href="@{/transactions}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <script th:inline="javascript">
+            // Simple points calculation - multiply by 100 for now
+            // In production, this would fetch the category's pointsPerKg
+            function calculatePoints() {
+                const weight = parseFloat(document.getElementById('weight').value) || 0;
+                document.getElementById('totalPoints').value = weight * 100;
+            }
+        </script>
+    </div>
+</body>
+</html>
