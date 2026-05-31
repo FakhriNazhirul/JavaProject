@@ -2,8 +2,10 @@ package com.project.organix;
 
 import com.project.organix.model.KategoriSampah;
 import com.project.organix.model.RewardItem;
+import com.project.organix.model.User;
 import com.project.organix.repository.KategoriSampahRepository;
 import com.project.organix.repository.RewardItemRepository;
+import com.project.organix.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -19,8 +21,32 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private RewardItemRepository rewardItemRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
     public void run(String... args) {
+        // Initialize Admin and User if empty
+        if (userRepository.count() == 0) {
+            User admin = new User();
+            admin.setName("Admin Organix");
+            admin.setEmail("admin@organix.com");
+            admin.setPassword("admin123");
+            admin.setRole("ADMIN");
+            admin.setPoints(0);
+            userRepository.save(admin);
+
+            User user = new User();
+            user.setName("User Organix");
+            user.setEmail("user@organix.com");
+            user.setPassword("user123");
+            user.setRole("USER");
+            user.setPoints(1000);
+            userRepository.save(user);
+
+            System.out.println("Default Users created!");
+        }
+
         // Initialize Kategori Sampah if empty
         if (kategoriSampahRepository.count() == 0) {
             KategoriSampah plastic = new KategoriSampah();

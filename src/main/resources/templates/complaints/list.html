@@ -5,52 +5,228 @@
 </head>
 <body>
     <div th:fragment="content">
-        <div class="card">
-            <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>User ID</th>
-                            <th>Subject</th>
-                            <th>Description</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="c : ${complaints}">
-                            <td th:text="${c.id}">1</td>
-                            <td th:text="${c.userId}">1</td>
-                            <td th:text="${c.subject}">Subject</td>
-                            <td th:text="${#strings.abbreviate(c.description, 50)}">Description...</td>
-                            <td>
-                                <form th:action="@{/complaints/update/{id}(id=${c.id})}" method="post" class="d-inline">
-                                    <select name="status" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
-                                        <option value="OPEN" th:selected="${c.status == 'OPEN'}">OPEN</option>
-                                        <option value="PROCESSED" th:selected="${c.status == 'PROCESSED'}">PROCESSED</option>
-                                        <option value="CLOSED" th:selected="${c.status == 'CLOSED'}">CLOSED</option>
-                                    </select>
-                                </form>
-                            </td>
-                            <td th:text="${#temporals.format(c.createdAt, 'dd MMM yyyy')}">13 May 2026</td>
-                            <td>
-                                <a th:href="@{/complaints/delete/{id}(id=${c.id})}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this complaint?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(complaints)}">
-                            <td colspan="7" class="text-center py-4">
-                                <i class="fas fa-exclamation-circle d-block mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
-                                No complaints
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="admin-complaint-header">
+            <div>
+                <p class="section-kicker mb-1">HELPDESK</p>
+                <h4 class="fw-bold mb-1 text-dark">Complaint Tickets</h4>
+                <p class="text-muted mb-0">Review user complaints, update status, and send official responses.</p>
             </div>
         </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="complaint-stat">
+                    <div class="stat-dot dot-open"></div>
+                    <div>
+                        <div class="text-muted small">Open</div>
+                        <h4 class="fw-bold mb-0" th:text="${openComplaints}">0</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="complaint-stat">
+                    <div class="stat-dot dot-progress"></div>
+                    <div>
+                        <div class="text-muted small">Processed</div>
+                        <h4 class="fw-bold mb-0" th:text="${processedComplaints}">0</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="complaint-stat">
+                    <div class="stat-dot dot-closed"></div>
+                    <div>
+                        <div class="text-muted small">Closed</div>
+                        <h4 class="fw-bold mb-0" th:text="${closedComplaints}">0</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(complaints)}" class="empty-admin-ticket">
+            <i class="fas fa-inbox"></i>
+            <h5 class="fw-bold text-dark mt-3 mb-1">No complaints</h5>
+            <p class="text-muted mb-0">New user complaints will appear here.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(complaints)}" class="admin-ticket-list">
+            <article class="admin-ticket-card" th:each="c : ${complaints}">
+                <div class="ticket-content">
+                    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                                <span class="ticket-id" th:text="'#CMP-' + ${c.id}">#CMP-1</span>
+                                <span class="ticket-status"
+                                      th:classappend="${c.status == 'OPEN'} ? 'status-open' : (${c.status == 'PROCESSED'} ? 'status-progress' : 'status-closed')"
+                                      th:text="${c.status}">OPEN</span>
+                                <span class="ticket-priority"
+                                      th:classappend="${c.priority == 'HIGH'} ? 'priority-high' : (${c.priority == 'LOW'} ? 'priority-low' : 'priority-medium')"
+                                      th:text="${c.priority != null ? c.priority : 'MEDIUM'}">MEDIUM</span>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-1" th:text="${c.subject}">Complaint subject</h5>
+                            <div class="ticket-meta">
+                                <span><i class="fas fa-user me-1"></i>User ID <span th:text="${c.userId}">1</span></span>
+                                <span><i class="fas fa-folder me-1"></i><span th:text="${c.category != null ? c.category : 'GENERAL'}">GENERAL</span></span>
+                                <span><i class="fas fa-calendar me-1"></i><span th:text="${#temporals.format(c.createdAt, 'dd MMM yyyy, HH:mm')}">30 May 2026</span></span>
+                            </div>
+                        </div>
+                        <a th:href="@{/complaints/delete/{id}(id=${c.id})}"
+                           class="btn btn-sm btn-light-danger rounded-pill"
+                           onclick="return confirm('Delete this complaint?')">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </a>
+                    </div>
+
+                    <div class="ticket-message">
+                        <div class="ticket-label">User Complaint</div>
+                        <p class="mb-0 text-muted" th:text="${c.description}">Description</p>
+                    </div>
+
+                    <form th:action="@{/complaints/update/{id}(id=${c.id})}" method="post" class="reply-panel">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Status</label>
+                                <select name="status" class="form-select">
+                                    <option value="OPEN" th:selected="${c.status == 'OPEN'}">Open</option>
+                                    <option value="PROCESSED" th:selected="${c.status == 'PROCESSED'}">Processed</option>
+                                    <option value="CLOSED" th:selected="${c.status == 'CLOSED'}">Closed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">Admin Response</label>
+                                <textarea name="adminReply"
+                                          class="form-control"
+                                          rows="4"
+                                          placeholder="Write a clear response or resolution for the user..."
+                                          th:text="${c.adminReply}"></textarea>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="submit" class="btn btn-teal-solid rounded-pill px-4 fw-semibold">
+                                <i class="fas fa-paper-plane me-2"></i>Send Response
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </article>
+        </div>
     </div>
+
+    <style>
+        .admin-complaint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+        .section-kicker {
+            color: #00897B;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+        }
+        .complaint-stat {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 4px 16px rgba(15,23,42,0.05);
+        }
+        .stat-dot {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+        }
+        .dot-open { background: #fee2e2; }
+        .dot-progress { background: #fef3c7; }
+        .dot-closed { background: #dcfce7; }
+        .empty-admin-ticket {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 56px 24px;
+            text-align: center;
+            color: #64748b;
+            box-shadow: 0 4px 16px rgba(15,23,42,0.05);
+        }
+        .empty-admin-ticket i {
+            font-size: 2.4rem;
+            opacity: 0.4;
+        }
+        .admin-ticket-list {
+            display: grid;
+            gap: 18px;
+        }
+        .admin-ticket-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(15,23,42,0.05);
+            overflow: hidden;
+        }
+        .ticket-content {
+            padding: 22px;
+        }
+        .ticket-id {
+            color: #64748b;
+            background: #f1f5f9;
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .ticket-status, .ticket-priority {
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
+        .status-open { background: #fee2e2; color: #dc2626; }
+        .status-progress { background: #fef3c7; color: #d97706; }
+        .status-closed { background: #dcfce7; color: #16a34a; }
+        .priority-high { background: #ffe4e6; color: #be123c; }
+        .priority-medium { background: #e0f2fe; color: #0369a1; }
+        .priority-low { background: #ecfdf5; color: #047857; }
+        .ticket-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            color: #64748b;
+            font-size: 0.84rem;
+        }
+        .ticket-message {
+            border-top: 1px solid #f1f5f9;
+            padding-top: 16px;
+            margin-top: 16px;
+        }
+        .ticket-label {
+            color: #334155;
+            font-weight: 700;
+            font-size: 0.82rem;
+            margin-bottom: 6px;
+        }
+        .reply-panel {
+            margin-top: 18px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 18px;
+        }
+        .reply-panel .form-control,
+        .reply-panel .form-select {
+            border-radius: 12px;
+            border-color: #cbd5e1;
+        }
+        .reply-panel .form-control:focus,
+        .reply-panel .form-select:focus {
+            border-color: #00897B;
+            box-shadow: 0 0 0 4px rgba(0,137,123,0.1);
+        }
+    </style>
 </body>
 </html>

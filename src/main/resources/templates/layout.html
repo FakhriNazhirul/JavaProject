@@ -288,6 +288,40 @@
             font-size: 1.8rem;
         }
 
+        .user-sidebar-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px 12px;
+            margin: 0 15px 4px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .user-avatar-sidebar {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #00897B, #00695C);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .menu-divider-label {
+            padding: 10px 25px 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: #475569;
+        }
+
+        .hover-shadow:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important;
+            transform: translateY(-3px);
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -308,26 +342,58 @@
             <h2>Organix</h2>
         </div>
         <div class="sidebar-menu">
-            <a th:href="@{/}" class="menu-item" th:classappend="${currentUri != null && currentUri == '/' ? 'active' : ''}">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a th:href="@{/users}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'users') ? 'active' : ''}">
-                <i class="fas fa-users"></i> Users
-            </a>
-            <a th:href="@{/transactions}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'transactions') ? 'active' : ''}">
-                <i class="fas fa-recycle"></i> Transactions
-            </a>
-            <a th:href="@{/points}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'points') ? 'active' : ''}">
-                <i class="fas fa-coins"></i> Points
-            </a>
-            <a th:href="@{/rewards}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'rewards') ? 'active' : ''}">
-                <i class="fas fa-gift"></i> Rewards
-            </a>
-            <a th:href="@{/complaints}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'complaints') ? 'active' : ''}">
-                <i class="fas fa-exclamation-circle"></i> Complaints
-            </a>
-            <a th:href="@{/kategori}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'kategori') ? 'active' : ''}">
-                <i class="fas fa-tags"></i> Categories
+            <!-- ADMIN MENU -->
+            <th:block th:if="${session.userRole == 'ADMIN'}">
+                <a th:href="@{/}" class="menu-item" th:classappend="${currentUri != null && currentUri == '/' ? 'active' : ''}">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a th:href="@{/users}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'users') ? 'active' : ''}">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a th:href="@{/transactions}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'transactions') ? 'active' : ''}">
+                    <i class="fas fa-recycle"></i> Transactions
+                </a>
+                <a th:href="@{/points}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'points') ? 'active' : ''}">
+                    <i class="fas fa-coins"></i> Points
+                </a>
+                <a th:href="@{/rewards}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'rewards') ? 'active' : ''}">
+                    <i class="fas fa-gift"></i> Rewards
+                </a>
+                <a th:href="@{/complaints}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'complaints') ? 'active' : ''}">
+                    <i class="fas fa-exclamation-circle"></i> Complaints
+                </a>
+                <a th:href="@{/kategori}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'kategori') ? 'active' : ''}">
+                    <i class="fas fa-tags"></i> Categories
+                </a>
+            </th:block>
+
+            <!-- USER MENU -->
+            <th:block th:if="${session.userRole == 'USER'}">
+                <!-- User Info -->
+                <div class="user-sidebar-info">
+                    <div class="user-avatar-sidebar" th:text="${session.userName != null ? session.userName.substring(0,1).toUpperCase() : 'U'}">U</div>
+                    <div>
+                        <div class="fw-semibold text-white" style="font-size:0.9rem;" th:text="${session.userName}">User</div>
+                        <div style="font-size:0.75rem;color:#94a3b8;">Member</div>
+                    </div>
+                </div>
+                <div class="menu-divider-label">MENU</div>
+                <a th:href="@{/user/dashboard}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'user/dashboard') ? 'active' : ''}">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a th:href="@{/user/points}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'user/points') ? 'active' : ''}">
+                    <i class="fas fa-coins"></i> My Points
+                </a>
+                <a th:href="@{/user/rewards}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'user/rewards') ? 'active' : ''}">
+                    <i class="fas fa-gift"></i> Redeem Rewards
+                </a>
+                <a th:href="@{/user/complaints}" class="menu-item" th:classappend="${currentUri != null && #strings.contains(currentUri, 'user/complaints') ? 'active' : ''}">
+                    <i class="fas fa-exclamation-circle"></i> My Complaints
+                </a>
+            </th:block>
+            
+            <a th:href="@{/logout}" class="menu-item mt-5 text-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
     </div>
@@ -339,7 +405,10 @@
                 <h1 class="page-title" th:text="${pageTitle}">Dashboard</h1>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+                        <li class="breadcrumb-item">
+                            <a th:if="${session.userRole == 'USER'}" th:href="@{/user/dashboard}">Home</a>
+                            <a th:unless="${session.userRole == 'USER'}" th:href="@{/}">Home</a>
+                        </li>
                         <li class="breadcrumb-item active" th:text="${pageTitle}">Dashboard</li>
                     </ol>
                 </nav>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html th:replace="~{layout :: html}">
+<body>
+    <div th:fragment="content">
+
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h4 class="fw-bold mb-1 text-dark">Redeem Rewards</h4>
+                <p class="text-muted mb-0" style="font-size:0.9rem;">Exchange your Organix Points for eco-friendly rewards</p>
+            </div>
+            <a th:href="@{/user/points}" class="points-display-badge text-decoration-none">
+                <i class="fas fa-coins me-2" style="color:#fbbf24;"></i>
+                <span class="fw-bold me-1" th:text="${totalPoints}">0</span>
+                <span class="opacity-75" style="font-size:0.85rem;">pts available</span>
+            </a>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${#lists.isEmpty(rewards)}" class="text-center py-5">
+            <div class="reward-empty-icon mx-auto mb-4">
+                <i class="fas fa-gift"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-2">No Rewards Available</h5>
+            <p class="text-muted">Check back soon! New rewards are added regularly.</p>
+        </div>
+
+        <!-- Rewards Grid -->
+        <div class="row g-4" th:unless="${#lists.isEmpty(rewards)}">
+            <div class="col-lg-4 col-md-6" th:each="reward : ${rewards}">
+                <div class="reward-card-new h-100">
+
+                    <!-- Image / Icon Area -->
+                    <div class="reward-visual">
+                        <div th:if="${reward.imageUrl != null and !reward.imageUrl.isEmpty()}"
+                             class="reward-img"
+                             th:style="'background-image:url(' + ${reward.imageUrl} + ')'">
+                        </div>
+                        <div th:unless="${reward.imageUrl != null and !reward.imageUrl.isEmpty()}"
+                             class="reward-img-placeholder">
+                            <i class="fas fa-gift"></i>
+                        </div>
+
+                        <!-- Stock Badge -->
+                        <div class="reward-stock-badge"
+                             th:classappend="${reward.stock > 10} ? 'stock-high' : (${reward.stock > 0} ? 'stock-low' : 'stock-out')"
+                             th:text="${reward.stock > 0} ? ${reward.stock} + ' left' : 'Out of Stock'">10 left</div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="reward-content">
+                        <h5 class="fw-bold text-dark mb-1 reward-name" th:text="${reward.name}">Reward Name</h5>
+                        <p class="text-muted mb-3 reward-desc" th:text="${reward.description}">Description of this reward item goes here.</p>
+
+                        <!-- Price + Redeem -->
+                        <div class="reward-footer">
+                            <div class="reward-price">
+                                <i class="fas fa-coins me-1" style="color:#fbbf24;font-size:1rem;"></i>
+                                <span class="fw-bold text-dark" th:text="${reward.priceInPoints}">100</span>
+                                <span class="text-muted" style="font-size:0.82rem;"> pts</span>
+                            </div>
+
+                            <form th:action="@{/user/rewards/redeem}" method="post"
+                                  th:if="${reward.stock > 0}"
+                                  onsubmit="return confirm('Redeem \'' + this.dataset.name + '\' for ' + this.dataset.pts + ' points?');"
+                                  th:data-name="${reward.name}"
+                                  th:data-pts="${reward.priceInPoints}">
+                                <input type="hidden" name="rewardId" th:value="${reward.id}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-redeem rounded-pill px-4">
+                                    <i class="fas fa-exchange-alt me-1"></i>Redeem
+                                </button>
+                            </form>
+
+                            <button class="btn btn-out-of-stock rounded-pill px-4" disabled th:if="${reward.stock <= 0}">
+                                <i class="fas fa-times-circle me-1"></i>Out of Stock
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <style>
+        .points-display-badge {
+            background: linear-gradient(135deg, #00897B, #00695C);
+            color: #fff;
+            border-radius: 30px;
+            padding: 10px 22px;
+            display: flex; align-items: center;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 14px rgba(0,137,123,0.25);
+        }
+        .points-display-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,137,123,0.3);
+            color: #fff;
+        }
+
+        .reward-empty-icon {
+            width: 90px; height: 90px;
+            background: #f5f3ff;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; color: #8b5cf6;
+        }
+
+        .reward-card-new {
+            background: #fff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1.5px solid #f1f5f9;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        .reward-card-new:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+            border-color: #00897B;
+        }
+
+        .reward-visual {
+            height: 180px;
+            position: relative;
+            background: linear-gradient(135deg, #f0fdfa, #e0f2fe);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .reward-img {
+            width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+        }
+        .reward-img-placeholder {
+            font-size: 3.5rem;
+            color: #00897B;
+            opacity: 0.35;
+        }
+
+        .reward-stock-badge {
+            position: absolute; top: 14px; right: 14px;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .stock-high { background: #dcfce7; color: #16a34a; }
+        .stock-low { background: #fef3c7; color: #d97706; }
+        .stock-out { background: #fee2e2; color: #dc2626; }
+
+        .reward-content {
+            padding: 22px 22px 20px;
+            flex-grow: 1;
+            display: flex; flex-direction: column;
+        }
+
+        .reward-name {
+            font-size: 1.05rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .reward-desc {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+
+        .reward-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid #f1f5f9;
+        }
+        .reward-price { font-size: 1.1rem; display: flex; align-items: center; }
+
+        .btn-redeem {
+            background: linear-gradient(135deg, #00897B, #00695C);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,137,123,0.2);
+        }
+        .btn-redeem:hover {
+            background: linear-gradient(135deg, #00695C, #004D40);
+            color: #fff;
+            transform: scale(1.03);
+            box-shadow: 0 6px 18px rgba(0,137,123,0.3);
+        }
+
+        .btn-out-of-stock {
+            background: #f1f5f9;
+            color: #94a3b8;
+            font-weight: 500;
+            font-size: 0.85rem;
+            border: none;
+            cursor: not-allowed;
+        }
+    </style>
+</body>
+</html>

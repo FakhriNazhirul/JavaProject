@@ -17,9 +17,18 @@ public class Complaint extends BaseEntity {
     @Column(nullable = false, length = 200)
     private String subject;
 
+    @Column(length = 100)
+    private String category = "GENERAL";
+
+    @Column(length = 50)
+    private String priority = "MEDIUM";
+
     @Column(nullable = false, length = 2000)
     private String description;
 
     @Column(length = 50)
     private String status = "OPEN";
+
+    @Column(length = 2000)
+    private String adminReply;
 }

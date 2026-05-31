@@ -30,6 +30,15 @@ public class ComplaintServiceImpl implements ComplaintService {
 
     @Override
     public ApiResponse<Complaint> createComplaint(Complaint complaint) {
+        if (complaint.getCategory() == null || complaint.getCategory().isBlank()) {
+            complaint.setCategory("GENERAL");
+        }
+        if (complaint.getPriority() == null || complaint.getPriority().isBlank()) {
+            complaint.setPriority("MEDIUM");
+        }
+        if (complaint.getStatus() == null || complaint.getStatus().isBlank()) {
+            complaint.setStatus("OPEN");
+        }
         Complaint saved = complaintRepository.save(complaint);
         return ApiResponse.ok("Complaint created successfully", saved);
     }
@@ -41,8 +50,11 @@ public class ComplaintServiceImpl implements ComplaintService {
             Complaint updated = existing.get();
             updated.setUserId(complaint.getUserId());
             updated.setSubject(complaint.getSubject());
+            updated.setCategory(complaint.getCategory());
+            updated.setPriority(complaint.getPriority());
             updated.setDescription(complaint.getDescription());
             updated.setStatus(complaint.getStatus());
+            updated.setAdminReply(complaint.getAdminReply());
             complaintRepository.save(updated);
             return ApiResponse.ok("Complaint updated successfully", updated);
         }

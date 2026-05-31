@@ -30,12 +30,15 @@ public class WebController {
 
     @GetMapping("/")
     public String index(Model model) {
-        model.addAttribute("pageTitle", "Dashboard");
+        model.addAttribute("pageTitle", "Admin Dashboard");
         model.addAttribute("totalUsers", userRepository.count());
         model.addAttribute("totalTransactions", transaksiRepository.count());
         model.addAttribute("totalPoints", userRepository.findAll().stream().mapToInt(User::getPoints).sum());
         model.addAttribute("totalRewards", rewardItemRepository.count());
         model.addAttribute("totalComplaints", complaintRepository.count());
+        model.addAttribute("openComplaints", complaintRepository.findAll().stream()
+                .filter(c -> "OPEN".equalsIgnoreCase(c.getStatus()))
+                .count());
         
         List<Transaksi> recentTransactions = transaksiRepository.findAll();
         recentTransactions.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
@@ -43,6 +46,13 @@ public class WebController {
             recentTransactions = recentTransactions.subList(0, 5);
         }
         model.addAttribute("recentTransactions", recentTransactions);
+
+        List<Complaint> recentComplaints = complaintRepository.findAll();
+        recentComplaints.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+        if (recentComplaints.size() > 5) {
+            recentComplaints = recentComplaints.subList(0, 5);
+        }
+        model.addAttribute("recentComplaints", recentComplaints);
         
         return "index";
     }
@@ -234,15 +244,28 @@ public class WebController {
 
     @GetMapping("/complaints")
     public String complaints(Model model) {
+        List<Complaint> complaints = complaintRepository.findAll();
         model.addAttribute("pageTitle", "Complaints");
-        model.addAttribute("complaints", complaintRepository.findAll());
+        model.addAttribute("complaints", complaints);
+        model.addAttribute("openComplaints", complaints.stream()
+                .filter(c -> "OPEN".equalsIgnoreCase(c.getStatus()))
+                .count());
+        model.addAttribute("processedComplaints", complaints.stream()
+                .filter(c -> "PROCESSED".equalsIgnoreCase(c.getStatus()))
+                .count());
+        model.addAttribute("closedComplaints", complaints.stream()
+                .filter(c -> "CLOSED".equalsIgnoreCase(c.getStatus()))
+                .count());
         return "complaints/list";
     }
 
     @PostMapping("/complaints/update/{id}")
-    public String updateComplaint(@PathVariable Long id, @RequestParam String status) {
+    public String updateComplaint(@PathVariable Long id,
+                                  @RequestParam String status,
+                                  @RequestParam(required = false) String adminReply) {
         complaintRepository.findById(id).ifPresent(c -> {
             c.setStatus(status);
+            c.setAdminReply(adminReply);
             complaintRepository.save(c);
         });
         return "redirect:/complaints?updated";

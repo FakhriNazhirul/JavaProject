@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html th:replace="~{layout :: html}">
+<body>
+    <div th:fragment="content">
+
+        <!-- Welcome Hero Card -->
+        <div class="user-hero-card mb-4">
+            <div class="hero-bg-orb orb1"></div>
+            <div class="hero-bg-orb orb2"></div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3" style="position:relative;z-index:1;">
+                <div>
+                    <p class="mb-1 text-white opacity-75 fw-medium" style="font-size:0.9rem;letter-spacing:0.05em;">WELCOME BACK</p>
+                    <h2 class="fw-bold text-white mb-1" th:text="${user.name}">User</h2>
+                    <p class="mb-0 text-white opacity-75">Member since <span th:text="${#temporals.format(user.createdAt, 'MMMM yyyy')}">May 2026</span></p>
+                </div>
+                <div class="text-center">
+                    <div class="points-badge">
+                        <i class="fas fa-coins mb-1 d-block" style="font-size:1.6rem;color:#fcd34d;"></i>
+                        <div class="fw-bold" style="font-size:2rem;line-height:1;" th:text="${user.points}">0</div>
+                        <div style="font-size:0.75rem;opacity:0.85;letter-spacing:0.08em;">ORGANIX POINTS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="user-stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="mb-1 text-white opacity-75 small fw-medium">AVAILABLE POINTS</p>
+                            <h3 class="fw-bold text-white mb-0" th:text="${user.points}">0</h3>
+                        </div>
+                        <div class="stat-icon-circle" style="background:rgba(255,255,255,0.15);">
+                            <i class="fas fa-coins text-white"></i>
+                        </div>
+                    </div>
+                    <a th:href="@{/user/points}" class="stat-link mt-3 d-block text-white opacity-75">
+                        <i class="fas fa-arrow-right me-1"></i> View History
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="user-stat-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="mb-1 text-white opacity-75 small fw-medium">AVAILABLE REWARDS</p>
+                            <h3 class="fw-bold text-white mb-0" th:text="${availableRewards}">0</h3>
+                        </div>
+                        <div class="stat-icon-circle" style="background:rgba(255,255,255,0.15);">
+                            <i class="fas fa-gift text-white"></i>
+                        </div>
+                    </div>
+                    <a th:href="@{/user/rewards}" class="stat-link mt-3 d-block text-white opacity-75">
+                        <i class="fas fa-arrow-right me-1"></i> Redeem Now
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="user-stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="mb-1 text-white opacity-75 small fw-medium">OPEN COMPLAINTS</p>
+                            <h3 class="fw-bold text-white mb-0" th:text="${openComplaintCount}">0</h3>
+                        </div>
+                        <div class="stat-icon-circle" style="background:rgba(255,255,255,0.15);">
+                            <i class="fas fa-exclamation-circle text-white"></i>
+                        </div>
+                    </div>
+                    <a th:href="@{/user/complaints}" class="stat-link mt-3 d-block text-white opacity-75">
+                        <i class="fas fa-arrow-right me-1"></i> View All
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row g-3 mb-4">
+            <div class="col-12">
+                <h5 class="fw-bold mb-3 text-dark" style="letter-spacing:-0.01em;">
+                    <i class="fas fa-bolt me-2" style="color:#00897B;"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="col-md-4">
+                <a th:href="@{/user/rewards}" class="quick-action-card text-decoration-none d-block">
+                    <div class="quick-action-icon" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold text-dark mb-1">Redeem Points</div>
+                        <div class="text-muted small">Exchange your points for eco-friendly rewards</div>
+                    </div>
+                    <i class="fas fa-chevron-right text-muted ms-auto"></i>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a th:href="@{/user/complaints/new}" class="quick-action-card text-decoration-none d-block">
+                    <div class="quick-action-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+                        <i class="fas fa-pen-alt"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold text-dark mb-1">Submit Complaint</div>
+                        <div class="text-muted small">Report an issue or give feedback to us</div>
+                    </div>
+                    <i class="fas fa-chevron-right text-muted ms-auto"></i>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a th:href="@{/user/points}" class="quick-action-card text-decoration-none d-block">
+                    <div class="quick-action-icon" style="background:linear-gradient(135deg,#10b981,#059669);">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold text-dark mb-1">My Points</div>
+                        <div class="text-muted small">View your full points history and balance</div>
+                    </div>
+                    <i class="fas fa-chevron-right text-muted ms-auto"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm" style="border-radius:16px;">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center" style="border-radius:16px 16px 0 0;border-bottom:1px solid #f1f5f9;padding:18px 20px;">
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark">
+                                <i class="fas fa-clock me-2" style="color:#00897B;"></i>Recent Points Activity
+                            </h6>
+                        </div>
+                        <a th:href="@{/user/points}" class="btn btn-sm btn-teal-solid rounded-pill px-3">View All</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div th:if="${#lists.isEmpty(recentPoints)}" class="text-center py-5">
+                            <i class="fas fa-coins fa-2x text-muted mb-3 d-block opacity-25"></i>
+                            <p class="text-muted mb-0">No point activity yet. Start recycling to earn points!</p>
+                        </div>
+                        <div th:unless="${#lists.isEmpty(recentPoints)}">
+                            <div th:each="ph, stat : ${recentPoints}"
+                                 class="activity-row d-flex align-items-center px-4 py-3"
+                                 th:classappend="${!stat.last} ? 'border-bottom' : ''">
+                                <div class="activity-icon me-3"
+                                     th:classappend="${ph.type == 'ADD'} ? 'icon-add' : (${ph.type == 'REDEEM'} ? 'icon-redeem' : 'icon-deduct')">
+                                    <i class="fas" th:classappend="${ph.type == 'ADD'} ? 'fa-plus' : (${ph.type == 'REDEEM'} ? 'fa-gift' : 'fa-minus')"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-medium text-dark" style="font-size:0.9rem;" th:text="${ph.description}">Description</div>
+                                    <div class="text-muted" style="font-size:0.8rem;" th:text="${#temporals.format(ph.createdAt, 'dd MMM yyyy, HH:mm')}">Date</div>
+                                </div>
+                                <div class="fw-bold"
+                                     th:classappend="${ph.points.intValue() > 0} ? 'text-success' : 'text-danger'"
+                                     th:text="${ph.points.intValue() > 0 ? '+' : ''} + ${ph.points} + ' pts'">+0 pts</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <style>
+        .user-hero-card {
+            background: linear-gradient(135deg, #00897B 0%, #00695C 60%, #004D40 100%);
+            border-radius: 24px;
+            padding: 36px 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,137,123,0.25);
+        }
+
+        .hero-bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+        }
+        .orb1 { width: 300px; height: 300px; top: -100px; right: -80px; }
+        .orb2 { width: 180px; height: 180px; bottom: -60px; right: 200px; }
+
+        .points-badge {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 20px 32px;
+            text-align: center;
+            color: white;
+        }
+
+        .user-stat-card {
+            border-radius: 18px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .user-stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 32px rgba(0,0,0,0.15);
+        }
+        .stat-icon-circle {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+        .stat-link {
+            font-size: 0.82rem;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .stat-link:hover { opacity: 1 !important; }
+
+        .quick-action-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: #fff;
+            border: 1.5px solid #f1f5f9;
+            border-radius: 18px;
+            padding: 20px 22px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        .quick-action-card:hover {
+            border-color: #00897B;
+            background: #f0fdfa;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,137,123,0.12);
+        }
+        .quick-action-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .activity-row {
+            transition: background 0.2s;
+        }
+        .activity-row:hover { background: #f8fafc; }
+
+        .activity-icon {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .icon-add { background: #dcfce7; color: #16a34a; }
+        .icon-redeem { background: #ede9fe; color: #7c3aed; }
+        .icon-deduct { background: #fee2e2; color: #dc2626; }
+    </style>
+</body>
+</html>

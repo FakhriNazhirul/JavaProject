@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html th:replace="~{layout :: html}">
+<body>
+    <div th:fragment="content">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 col-md-9">
+
+                <!-- Back link -->
+                <a th:href="@{/user/complaints}" class="d-inline-flex align-items-center gap-2 text-muted mb-4 text-decoration-none back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    <span style="font-size:0.9rem;">Back to My Complaints</span>
+                </a>
+
+                <!-- Form Card -->
+                <div class="card border-0 shadow-sm" style="border-radius:24px;overflow:hidden;">
+                    <!-- Card Header -->
+                    <div class="form-card-header">
+                        <div class="form-header-icon">
+                            <i class="fas fa-pen-alt"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold text-white mb-1">Submit a Complaint</h4>
+                            <p class="text-white opacity-75 mb-0" style="font-size:0.88rem;">We take every report seriously. Describe your issue below.</p>
+                        </div>
+                    </div>
+
+                    <!-- Form Body -->
+                    <div class="card-body p-4 p-md-5">
+                        <form th:action="@{/user/complaints/save}" method="post" th:object="${complaint}" id="complaintForm">
+
+                            <!-- Subject -->
+                            <div class="mb-4">
+                                <label for="subject" class="form-label fw-semibold text-dark mb-2">
+                                    <i class="fas fa-tag me-2" style="color:#00897B;"></i>Subject
+                                </label>
+                                <input type="text" id="subject" class="form-control form-control-lg complaint-input"
+                                       th:field="*{subject}"
+                                       required
+                                       maxlength="200"
+                                       placeholder="E.g., Missed waste pickup on 28 May">
+                                <div class="form-text text-muted mt-1">Briefly describe what your complaint is about</div>
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="category" class="form-label fw-semibold text-dark mb-2">
+                                        <i class="fas fa-folder me-2" style="color:#00897B;"></i>Category
+                                    </label>
+                                    <select id="category" class="form-select form-select-lg complaint-input" th:field="*{category}" required>
+                                        <option value="GENERAL">General</option>
+                                        <option value="PICKUP">Waste Pickup</option>
+                                        <option value="POINTS">Points</option>
+                                        <option value="REWARD">Reward</option>
+                                        <option value="ACCOUNT">Account</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="priority" class="form-label fw-semibold text-dark mb-2">
+                                        <i class="fas fa-flag me-2" style="color:#00897B;"></i>Priority
+                                    </label>
+                                    <select id="priority" class="form-select form-select-lg complaint-input" th:field="*{priority}" required>
+                                        <option value="LOW">Low</option>
+                                        <option value="MEDIUM">Medium</option>
+                                        <option value="HIGH">High</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-5">
+                                <label for="description" class="form-label fw-semibold text-dark mb-2">
+                                    <i class="fas fa-align-left me-2" style="color:#00897B;"></i>Description
+                                </label>
+                                <textarea id="description" class="form-control complaint-input"
+                                          th:field="*{description}"
+                                          rows="6"
+                                          required
+                                          maxlength="2000"
+                                          placeholder="Please provide as much detail as possible about the issue, including date, location, and any relevant context..."></textarea>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <div class="form-text text-muted">Be specific to help us resolve your issue quickly</div>
+                                    <div class="form-text text-muted char-count">0 / 2000</div>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-flex gap-3 flex-wrap">
+                                <button type="submit" class="btn btn-teal-solid btn-lg px-5 rounded-pill fw-bold flex-grow-1 flex-md-grow-0" id="submitBtn">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Complaint
+                                </button>
+                                <a th:href="@{/user/complaints}" class="btn btn-light btn-lg px-4 rounded-pill fw-medium">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Info Note -->
+                <div class="info-note mt-4">
+                    <i class="fas fa-info-circle me-2" style="color:#0284c7;"></i>
+                    <span>Our team will review your complaint and respond as soon as possible. You can track the status in <a th:href="@{/user/complaints}" class="fw-medium" style="color:#0284c7;">My Complaints</a>.</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .back-link { transition: color 0.2s; }
+        .back-link:hover { color: #00897B !important; }
+
+        .form-card-header {
+            background: linear-gradient(135deg, #00897B, #00695C);
+            padding: 28px 32px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .form-header-icon {
+            width: 56px; height: 56px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .complaint-input {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 0.95rem;
+            background: #f8fafc;
+            transition: all 0.2s;
+        }
+        .complaint-input:focus {
+            border-color: #00897B;
+            box-shadow: 0 0 0 4px rgba(0,137,123,0.1);
+            background: #fff;
+            outline: none;
+        }
+
+        .info-note {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 0.88rem;
+            color: #0369a1;
+            display: flex;
+            align-items: flex-start;
+        }
+    </style>
+
+    <script>
+        // Character counter for description
+        const descField = document.getElementById('description');
+        const charCount = document.querySelector('.char-count');
+        if (descField && charCount) {
+            descField.addEventListener('input', () => {
+                charCount.textContent = descField.value.length + ' / 2000';
+            });
+        }
+
+        // Prevent double submit
+        document.getElementById('complaintForm').addEventListener('submit', function() {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html th:replace="~{layout :: html}">
+<body>
+    <div th:fragment="content">
+
+        <!-- Points Summary Hero -->
+        <div class="points-hero mb-4">
+            <div class="points-hero-orb"></div>
+            <div class="row align-items-center" style="position:relative;z-index:1;">
+                <div class="col-md-8">
+                    <p class="text-white opacity-75 mb-1 fw-medium" style="font-size:0.85rem;letter-spacing:0.07em;">YOUR BALANCE</p>
+                    <div class="d-flex align-items-end gap-3">
+                        <span class="text-white fw-bold" style="font-size:3.5rem;line-height:1;" th:text="${totalPoints}">0</span>
+                        <span class="text-white opacity-75 mb-2" style="font-size:1.1rem;">Organix Points</span>
+                    </div>
+                    <p class="text-white opacity-60 mb-0 mt-1" style="font-size:0.9rem;">Use your points to redeem exciting eco-friendly rewards</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a th:href="@{/user/rewards}" class="btn btn-light btn-lg rounded-pill px-5 fw-bold" style="color:#00897B;">
+                        <i class="fas fa-gift me-2"></i>Redeem Now
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Points History Table -->
+        <div class="card border-0 shadow-sm" style="border-radius:20px;overflow:hidden;">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center" style="padding:20px 24px;border-bottom:1px solid #f1f5f9;">
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark">
+                        <i class="fas fa-history me-2" style="color:#00897B;"></i>Points History
+                    </h5>
+                    <p class="text-muted mb-0 mt-1" style="font-size:0.82rem;">Complete record of all your point transactions</p>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(userPoints)}" class="text-center py-5">
+                <div class="empty-icon-wrap mx-auto mb-4">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <h6 class="fw-bold text-dark mb-1">No Activity Yet</h6>
+                <p class="text-muted mb-4" style="font-size:0.9rem;">Your point history will appear here once you start earning or redeeming.</p>
+            </div>
+
+            <!-- Table -->
+            <div th:unless="${#lists.isEmpty(userPoints)}" class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr style="background:#f8fafc;">
+                            <th class="py-3 ps-4 text-muted fw-semibold" style="font-size:0.8rem;letter-spacing:0.05em;">DATE &amp; TIME</th>
+                            <th class="py-3 text-muted fw-semibold" style="font-size:0.8rem;letter-spacing:0.05em;">DESCRIPTION</th>
+                            <th class="py-3 text-muted fw-semibold" style="font-size:0.8rem;letter-spacing:0.05em;">TYPE</th>
+                            <th class="py-3 pe-4 text-end text-muted fw-semibold" style="font-size:0.8rem;letter-spacing:0.05em;">POINTS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="ph : ${userPoints}" class="points-row">
+                            <td class="ps-4 py-3">
+                                <div class="fw-medium text-dark" style="font-size:0.88rem;" th:text="${#temporals.format(ph.createdAt, 'dd MMM yyyy')}">Date</div>
+                                <div class="text-muted" style="font-size:0.78rem;" th:text="${#temporals.format(ph.createdAt, 'HH:mm')}">Time</div>
+                            </td>
+                            <td class="py-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="history-icon"
+                                         th:classappend="${ph.type == 'ADD'} ? 'icon-add' : (${ph.type == 'REDEEM'} ? 'icon-redeem' : 'icon-deduct')">
+                                        <i class="fas" th:classappend="${ph.type == 'ADD'} ? 'fa-arrow-down' : (${ph.type == 'REDEEM'} ? 'fa-gift' : 'fa-arrow-up')"></i>
+                                    </div>
+                                    <span style="font-size:0.9rem;" th:text="${ph.description}">Description</span>
+                                </div>
+                            </td>
+                            <td class="py-3">
+                                <span class="type-badge"
+                                      th:classappend="${ph.type == 'ADD'} ? 'type-add' : (${ph.type == 'REDEEM'} ? 'type-redeem' : 'type-deduct')"
+                                      th:text="${ph.type}">Type</span>
+                            </td>
+                            <td class="pe-4 py-3 text-end">
+                                <span class="fw-bold"
+                                      style="font-size:1rem;"
+                                      th:classappend="${ph.points.intValue() > 0} ? 'text-success' : 'text-danger'"
+                                      th:text="${ph.points.intValue() > 0 ? '+' : ''} + ${ph.points}">0</span>
+                                <span class="text-muted ms-1" style="font-size:0.78rem;">pts</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <style>
+        .points-hero {
+            background: linear-gradient(135deg, #00897B 0%, #00695C 60%, #004D40 100%);
+            border-radius: 24px;
+            padding: 36px 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 16px 40px rgba(0,137,123,0.25);
+        }
+        .points-hero-orb {
+            position: absolute;
+            width: 350px; height: 350px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            top: -120px; right: -60px;
+        }
+
+        .empty-icon-wrap {
+            width: 80px; height: 80px;
+            background: #f0fdfa;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: #00897B;
+        }
+
+        .history-icon {
+            width: 32px; height: 32px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        .icon-add { background: #dcfce7; color: #16a34a; }
+        .icon-redeem { background: #ede9fe; color: #7c3aed; }
+        .icon-deduct { background: #fee2e2; color: #dc2626; }
+
+        .type-badge {
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+        }
+        .type-add { background: #dcfce7; color: #16a34a; }
+        .type-redeem { background: #ede9fe; color: #7c3aed; }
+        .type-deduct { background: #fee2e2; color: #dc2626; }
+
+        .points-row:hover { background: #f8fafc !important; }
+    </style>
+</body>
+</html>

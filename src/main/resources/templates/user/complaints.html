@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html th:replace="~{layout :: html}">
+<body>
+    <div th:fragment="content">
+        <div class="complaint-page-header">
+            <div>
+                <p class="section-kicker mb-1">SUPPORT TICKETS</p>
+                <h4 class="fw-bold mb-1 text-dark">My Complaints</h4>
+                <p class="text-muted mb-0">Track your reports, status updates, and admin responses.</p>
+            </div>
+            <a th:href="@{/user/complaints/new}" class="btn btn-teal-solid rounded-pill px-4 fw-semibold">
+                <i class="fas fa-plus me-2"></i>New Complaint
+            </a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(complaints)}" class="empty-ticket-state">
+            <div class="empty-ticket-icon"><i class="fas fa-headset"></i></div>
+            <h5 class="fw-bold text-dark mb-2">No complaints yet</h5>
+            <p class="text-muted mb-4">When you submit a complaint, it will appear here as a support ticket.</p>
+            <a th:href="@{/user/complaints/new}" class="btn btn-teal-solid rounded-pill px-4">
+                Submit Complaint
+            </a>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(complaints)}" class="ticket-list">
+            <article class="ticket-card" th:each="complaint : ${complaints}">
+                <div class="ticket-main">
+                    <div class="ticket-topline">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                                <span class="ticket-id" th:text="'#CMP-' + ${complaint.id}">#CMP-1</span>
+                                <span class="ticket-status"
+                                      th:classappend="${complaint.status == 'OPEN'} ? 'status-open' : (${complaint.status == 'PROCESSED'} ? 'status-progress' : 'status-closed')"
+                                      th:text="${complaint.status}">OPEN</span>
+                                <span class="ticket-priority"
+                                      th:classappend="${complaint.priority == 'HIGH'} ? 'priority-high' : (${complaint.priority == 'LOW'} ? 'priority-low' : 'priority-medium')"
+                                      th:text="${complaint.priority != null ? complaint.priority : 'MEDIUM'}">MEDIUM</span>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-1" th:text="${complaint.subject}">Complaint subject</h5>
+                            <div class="ticket-meta">
+                                <span><i class="fas fa-folder me-1"></i><span th:text="${complaint.category != null ? complaint.category : 'GENERAL'}">GENERAL</span></span>
+                                <span><i class="fas fa-calendar me-1"></i><span th:text="${#temporals.format(complaint.createdAt, 'dd MMM yyyy, HH:mm')}">30 May 2026</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ticket-section">
+                        <div class="ticket-label">Your Complaint</div>
+                        <p class="mb-0 text-muted" th:text="${complaint.description}">Description</p>
+                    </div>
+
+                    <div class="reply-box"
+                         th:classappend="${complaint.adminReply != null and !#strings.isEmpty(complaint.adminReply)} ? 'has-reply' : 'waiting-reply'">
+                        <div class="reply-icon">
+                            <i class="fas" th:classappend="${complaint.adminReply != null and !#strings.isEmpty(complaint.adminReply)} ? 'fa-reply' : 'fa-clock'"></i>
+                        </div>
+                        <div>
+                            <div class="fw-semibold text-dark mb-1"
+                                 th:text="${complaint.adminReply != null and !#strings.isEmpty(complaint.adminReply)} ? 'Admin Response' : 'Waiting for admin response'">Admin Response</div>
+                            <p class="mb-0 text-muted"
+                               th:if="${complaint.adminReply != null and !#strings.isEmpty(complaint.adminReply)}"
+                               th:text="${complaint.adminReply}">Reply</p>
+                            <p class="mb-0 text-muted" th:unless="${complaint.adminReply != null and !#strings.isEmpty(complaint.adminReply)}">
+                                Our team has not responded yet. Please check this ticket later.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <style>
+        .complaint-page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .section-kicker {
+            color: #00897B;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+        }
+        .empty-ticket-state {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            text-align: center;
+            padding: 56px 24px;
+            box-shadow: 0 4px 16px rgba(15,23,42,0.05);
+        }
+        .empty-ticket-icon {
+            width: 78px;
+            height: 78px;
+            border-radius: 22px;
+            background: #f0fdfa;
+            color: #00897B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 18px;
+        }
+        .ticket-list {
+            display: grid;
+            gap: 18px;
+        }
+        .ticket-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(15,23,42,0.05);
+            overflow: hidden;
+        }
+        .ticket-main {
+            padding: 22px;
+        }
+        .ticket-topline {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .ticket-id {
+            color: #64748b;
+            background: #f1f5f9;
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .ticket-status, .ticket-priority {
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
+        .status-open { background: #fee2e2; color: #dc2626; }
+        .status-progress { background: #fef3c7; color: #d97706; }
+        .status-closed { background: #dcfce7; color: #16a34a; }
+        .priority-high { background: #ffe4e6; color: #be123c; }
+        .priority-medium { background: #e0f2fe; color: #0369a1; }
+        .priority-low { background: #ecfdf5; color: #047857; }
+        .ticket-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            color: #64748b;
+            font-size: 0.84rem;
+        }
+        .ticket-section {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid #f1f5f9;
+        }
+        .ticket-label {
+            color: #334155;
+            font-weight: 700;
+            font-size: 0.82rem;
+            margin-bottom: 6px;
+        }
+        .reply-box {
+            margin-top: 18px;
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            gap: 14px;
+        }
+        .reply-box.has-reply {
+            background: #f0fdfa;
+            border: 1px solid #99f6e4;
+        }
+        .reply-box.waiting-reply {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+        }
+        .reply-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: #fff;
+            color: #00897B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+    </style>
+</body>
+</html>

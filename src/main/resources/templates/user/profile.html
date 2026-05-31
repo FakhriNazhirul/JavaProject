@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html th:replace="~{layout :: html}">
+<body>
+    <div th:fragment="content">
+        <div class="card border-0 shadow-sm max-w-lg mx-auto">
+            <div class="card-body p-4 p-md-5">
+                <h4 class="fw-bold mb-4">My Profile</h4>
+                <form th:action="@{/user/profile/update}" method="post" th:object="${user}">
+                    <div class="mb-4">
+                        <label class="form-label text-muted fw-medium">Name</label>
+                        <input type="text" class="form-control form-control-lg bg-light border-0" th:field="*{name}" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-muted fw-medium">Email</label>
+                        <input type="email" class="form-control form-control-lg bg-light border-0" th:field="*{email}" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-muted fw-medium">New Password (leave blank to keep current)</label>
+                        <input type="password" class="form-control form-control-lg bg-light border-0" th:field="*{password}" placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-teal-solid btn-lg px-5 rounded-pill w-100">Update Profile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
