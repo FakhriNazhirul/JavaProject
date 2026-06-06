@@ -13,6 +13,17 @@
             </a>
         </div>
 
+        <!-- Notifikasi -->
+        <div th:if="${param.success}" class="alert-flash alert-flash-success">
+            <i class="fas fa-check-circle me-2"></i>Complaint submitted successfully!
+        </div>
+        <div th:if="${param.deleted}" class="alert-flash alert-flash-info">
+            <i class="fas fa-trash me-2"></i>Complaint deleted.
+        </div>
+        <div th:if="${param.error}" class="alert-flash alert-flash-error">
+            <i class="fas fa-exclamation-circle me-2"></i>An error occurred.
+        </div>
+
         <div th:if="${#lists.isEmpty(complaints)}" class="empty-ticket-state">
             <div class="empty-ticket-icon"><i class="fas fa-headset"></i></div>
             <h5 class="fw-bold text-dark mb-2">No complaints yet</h5>
@@ -42,6 +53,13 @@
                                 <span><i class="fas fa-calendar me-1"></i><span th:text="${#temporals.format(complaint.createdAt, 'dd MMM yyyy, HH:mm')}">30 May 2026</span></span>
                             </div>
                         </div>
+                        <!-- Delete button: hanya tampil jika status OPEN -->
+                        <a th:if="${complaint.status == 'OPEN'}"
+                           th:href="@{/user/complaints/delete/{id}(id=${complaint.id})}"
+                           class="btn btn-sm btn-light-danger rounded-pill flex-shrink-0"
+                           onclick="return confirm('Hapus complaint ini?')">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </a>
                     </div>
 
                     <div class="ticket-section">
@@ -189,6 +207,25 @@
             justify-content: center;
             flex-shrink: 0;
         }
+        .ticket-topline {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .alert-flash {
+            display: flex;
+            align-items: center;
+            padding: 13px 18px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .alert-flash-success { background: #f0fdf4; border: 1px solid #86efac; color: #16a34a; }
+        .alert-flash-info    { background: #f0f9ff; border: 1px solid #7dd3fc; color: #0369a1; }
+        .alert-flash-error   { background: #fef2f2; border: 1px solid #fca5a5; color: #dc2626; }
     </style>
 </body>
 </html>

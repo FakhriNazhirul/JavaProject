@@ -41,6 +41,8 @@
             padding: 0;
             z-index: 1000;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
         }
 
         .sidebar-header {
@@ -58,9 +60,15 @@
             -webkit-text-fill-color: transparent;
         }
 
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+        }
+
         .menu-item {
             display: flex;
             align-items: center;
+            gap: 10px;
             padding: 14px 25px;
             margin: 8px 15px;
             border-radius: 12px;
@@ -185,11 +193,31 @@
         .badge-closed { background: #e2e3e5; color: #383d41; }
 
         .stat-card {
-            border-radius: 12px;
-            padding: 20px;
-            color: var(--white);
+            border: none;
+            border-radius: 24px;
+            padding: 30px;
+            color: #fff;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon-bg {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(5px);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
         }
 
         /* Design System Utilities */
@@ -261,33 +289,6 @@
             font-size: 1.3rem;
         }
 
-        .stat-card {
-            border: none;
-            border-radius: 24px;
-            padding: 30px;
-            color: #fff;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            transition: all 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-        }
-
-        .stat-icon-bg {
-            width: 60px;
-            height: 60px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(5px);
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-        }
-
         .user-sidebar-info {
             display: flex;
             align-items: center;
@@ -322,6 +323,34 @@
             transform: translateY(-3px);
         }
 
+        .sidebar-footer {
+            padding: 8px 15px 20px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 25px;
+            border-radius: 12px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: none;
+            text-align: left;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            transform: translateX(5px);
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -331,6 +360,11 @@
             .main-content {
                 margin-left: 0;
             }
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to   { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
@@ -391,10 +425,35 @@
                     <i class="fas fa-exclamation-circle"></i> My Complaints
                 </a>
             </th:block>
-            
-            <a th:href="@{/logout}" class="menu-item mt-5 text-danger">
+        </div>
+
+        <!-- Logout Footer -->
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="showLogoutModal()">
                 <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+            </button>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal"
+         style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.55); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:24px; padding:36px 32px; max-width:370px; width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.2); animation: fadeInScale 0.2s ease;">
+            <div style="width:68px; height:68px; border-radius:20px; background:#fef2f2; color:#ef4444; font-size:2rem; display:flex; align-items:center; justify-content:center; margin:0 auto 18px;">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <h5 style="font-weight:700; color:#1e293b; margin-bottom:8px;">Keluar dari Organix?</h5>
+            <p style="color:#64748b; font-size:0.88rem; margin-bottom:24px;">Sesi kamu akan berakhir dan kamu perlu login kembali.</p>
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button onclick="hideLogoutModal()"
+                        style="padding:12px 26px; border-radius:12px; border:1.5px solid #e2e8f0; background:#fff; color:#64748b; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; font-size:0.9rem;">
+                    Batal
+                </button>
+                <a href="/logout"
+                   style="padding:12px 26px; border-radius:12px; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; font-weight:600; text-decoration:none; display:inline-block; font-size:0.9rem;">
+                    Ya, Logout
+                </a>
+            </div>
         </div>
     </div>
 
@@ -436,19 +495,32 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Logout modal
+        function showLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            modal.style.display = 'flex';
+        }
+        function hideLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            modal.style.display = 'none';
+        }
+        document.getElementById('logoutModal').addEventListener('click', function(e) {
+            if (e.target === this) hideLogoutModal();
+        });
+
         // Toast function
         function showToast(title, message, isSuccess) {
             const toast = document.getElementById('toast');
             const toastTitle = document.getElementById('toast-title');
             const toastMessage = document.getElementById('toast-message');
-            
+
             toastTitle.textContent = title;
             toastMessage.textContent = message;
             toast.className = 'toast show';
-            
+
             const header = toast.querySelector('.toast-header');
             header.className = isSuccess ? 'toast-header bg-success text-white' : 'toast-header bg-danger text-white';
-            
+
             const bsToast = new bootstrap.Toast(toast);
             bsToast.show();
         }

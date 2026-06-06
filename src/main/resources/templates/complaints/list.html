@@ -1,232 +1,493 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
 <head>
     <title>Complaints - Organix</title>
 </head>
 <body>
     <div th:fragment="content">
-        <div class="admin-complaint-header">
+
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <p class="section-kicker mb-1">HELPDESK</p>
-                <h4 class="fw-bold mb-1 text-dark">Complaint Tickets</h4>
-                <p class="text-muted mb-0">Review user complaints, update status, and send official responses.</p>
+                <p class="section-kicker">HELPDESK</p>
+                <h4 class="fw-bold mb-1">Complaint Tickets</h4>
+                <p class="text-muted mb-0" style="font-size:0.9rem;">Review user complaints, update status, and send official responses.</p>
             </div>
         </div>
 
+        <!-- Stat Cards -->
         <div class="row g-3 mb-4">
             <div class="col-md-4">
-                <div class="complaint-stat">
-                    <div class="stat-dot dot-open"></div>
-                    <div>
-                        <div class="text-muted small">Open</div>
-                        <h4 class="fw-bold mb-0" th:text="${openComplaints}">0</h4>
+                <div class="cstat-card cstat-total" onclick="filterComplaints('ALL')" id="btn-all">
+                    <div class="cstat-icon">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <div class="cstat-body">
+                        <div class="cstat-label">Total Complaints</div>
+                        <div class="cstat-value" th:text="${openComplaints + processedComplaints + closedComplaints}">0</div>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="complaint-stat">
-                    <div class="stat-dot dot-progress"></div>
-                    <div>
-                        <div class="text-muted small">Processed</div>
-                        <h4 class="fw-bold mb-0" th:text="${processedComplaints}">0</h4>
+                <div class="cstat-card cstat-open" onclick="filterComplaints('OPEN')" id="btn-open">
+                    <div class="cstat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="cstat-body">
+                        <div class="cstat-label">Open</div>
+                        <div class="cstat-value" th:text="${openComplaints}">0</div>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="complaint-stat">
-                    <div class="stat-dot dot-closed"></div>
-                    <div>
-                        <div class="text-muted small">Closed</div>
-                        <h4 class="fw-bold mb-0" th:text="${closedComplaints}">0</h4>
+                <div class="cstat-card cstat-closed" onclick="filterComplaints('CLOSED')" id="btn-closed">
+                    <div class="cstat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="cstat-body">
+                        <div class="cstat-label">Closed</div>
+                        <div class="cstat-value" th:text="${closedComplaints}">0</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div th:if="${#lists.isEmpty(complaints)}" class="empty-admin-ticket">
-            <i class="fas fa-inbox"></i>
-            <h5 class="fw-bold text-dark mt-3 mb-1">No complaints</h5>
-            <p class="text-muted mb-0">New user complaints will appear here.</p>
+        <!-- Search Bar -->
+        <div class="search-wrapper mb-4">
+            <i class="fas fa-search search-ico"></i>
+            <input type="text" id="searchInput" class="search-field"
+                   placeholder="Search by subject, User ID, or category..."
+                   oninput="filterComplaints()">
         </div>
 
-        <div th:unless="${#lists.isEmpty(complaints)}" class="admin-ticket-list">
-            <article class="admin-ticket-card" th:each="c : ${complaints}">
-                <div class="ticket-content">
-                    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
-                        <div>
-                            <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
-                                <span class="ticket-id" th:text="'#CMP-' + ${c.id}">#CMP-1</span>
-                                <span class="ticket-status"
-                                      th:classappend="${c.status == 'OPEN'} ? 'status-open' : (${c.status == 'PROCESSED'} ? 'status-progress' : 'status-closed')"
-                                      th:text="${c.status}">OPEN</span>
-                                <span class="ticket-priority"
-                                      th:classappend="${c.priority == 'HIGH'} ? 'priority-high' : (${c.priority == 'LOW'} ? 'priority-low' : 'priority-medium')"
-                                      th:text="${c.priority != null ? c.priority : 'MEDIUM'}">MEDIUM</span>
-                            </div>
-                            <h5 class="fw-bold text-dark mb-1" th:text="${c.subject}">Complaint subject</h5>
-                            <div class="ticket-meta">
-                                <span><i class="fas fa-user me-1"></i>User ID <span th:text="${c.userId}">1</span></span>
-                                <span><i class="fas fa-folder me-1"></i><span th:text="${c.category != null ? c.category : 'GENERAL'}">GENERAL</span></span>
-                                <span><i class="fas fa-calendar me-1"></i><span th:text="${#temporals.format(c.createdAt, 'dd MMM yyyy, HH:mm')}">30 May 2026</span></span>
-                            </div>
-                        </div>
-                        <a th:href="@{/complaints/delete/{id}(id=${c.id})}"
-                           class="btn btn-sm btn-light-danger rounded-pill"
-                           onclick="return confirm('Delete this complaint?')">
-                            <i class="fas fa-trash me-1"></i>Delete
-                        </a>
-                    </div>
+        <!-- Empty State -->
+        <div th:if="${#lists.isEmpty(complaints)}" class="empty-state-box">
+            <div class="empty-icon-wrap">
+                <i class="fas fa-inbox"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-1">No complaints yet</h5>
+            <p class="text-muted mb-0">New user complaints will appear here automatically.</p>
+        </div>
 
-                    <div class="ticket-message">
-                        <div class="ticket-label">User Complaint</div>
-                        <p class="mb-0 text-muted" th:text="${c.description}">Description</p>
-                    </div>
+        <!-- Ticket List -->
+        <div th:unless="${#lists.isEmpty(complaints)}" id="ticketList" class="ticket-grid">
+            <div class="ticket-card" th:each="c : ${complaints}"
+                 th:attr="data-status=${c.status},data-subject=${c.subject},data-userid=${c.userId},data-category=${c.category}">
 
-                    <form th:action="@{/complaints/update/{id}(id=${c.id})}" method="post" class="reply-panel">
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">Status</label>
-                                <select name="status" class="form-select">
-                                    <option value="OPEN" th:selected="${c.status == 'OPEN'}">Open</option>
-                                    <option value="PROCESSED" th:selected="${c.status == 'PROCESSED'}">Processed</option>
-                                    <option value="CLOSED" th:selected="${c.status == 'CLOSED'}">Closed</option>
-                                </select>
-                            </div>
-                            <div class="col-md-8">
-                                <label class="form-label fw-semibold">Admin Response</label>
-                                <textarea name="adminReply"
-                                          class="form-control"
-                                          rows="4"
-                                          placeholder="Write a clear response or resolution for the user..."
-                                          th:text="${c.adminReply}"></textarea>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-teal-solid rounded-pill px-4 fw-semibold">
-                                <i class="fas fa-paper-plane me-2"></i>Send Response
-                            </button>
-                        </div>
-                    </form>
+                <!-- Card Top -->
+                <div class="ticket-header">
+                    <div class="ticket-badges">
+                        <span class="badge-id" th:text="'#CMP-' + ${c.id}">#CMP-1</span>
+                        <span class="badge-status status-open"
+                              th:classappend="${c.status == 'OPEN'} ? 'status-open' : (${c.status == 'PROCESSED'} ? 'status-processed' : 'status-closed')"
+                              th:text="${c.status}">OPEN</span>
+                        <span class="badge-priority priority-medium"
+                              th:classappend="${c.priority == 'HIGH'} ? 'priority-high' : (${c.priority == 'LOW'} ? 'priority-low' : 'priority-medium')"
+                              th:text="${c.priority != null ? c.priority : 'MEDIUM'}">MEDIUM</span>
+                    </div>
+                    <button class="btn-delete"
+                            th:onclick="|if(confirm('Delete this complaint?')) window.location='/complaints/delete/' + ${c.id}|">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                 </div>
-            </article>
+
+                <!-- Subject & Meta -->
+                <div class="ticket-body">
+                    <h5 class="ticket-subject" th:text="${c.subject}">Complaint Subject</h5>
+                    <div class="ticket-meta">
+                        <span class="meta-chip"><i class="fas fa-user"></i> User #<span th:text="${c.userId}">1</span></span>
+                        <span class="meta-chip"><i class="fas fa-tag"></i> <span th:text="${c.category != null ? c.category : 'GENERAL'}">GENERAL</span></span>
+                        <span class="meta-chip"><i class="fas fa-clock"></i> <span th:text="${#temporals.format(c.createdAt, 'dd MMM yyyy, HH:mm')}">30 May 2026</span></span>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="ticket-section">
+                        <div class="section-label"><i class="fas fa-comment-dots me-1"></i>User Complaint</div>
+                        <p class="description-text" th:text="${c.description}">Description here</p>
+                    </div>
+
+                    <!-- Existing Reply Preview -->
+                    <div th:if="${c.adminReply != null and !#strings.isEmpty(c.adminReply)}" class="existing-reply">
+                        <div class="section-label" style="color:#00897B;"><i class="fas fa-reply me-1"></i>Previous Response</div>
+                        <p class="description-text mb-0" th:text="${c.adminReply}">Previous reply</p>
+                    </div>
+                </div>
+
+                <!-- Reply Form -->
+                <form th:action="@{/complaints/update/{id}(id=${c.id})}" method="post" class="reply-form">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label-sm">Update Status</label>
+                            <select name="status" class="form-select form-select-sm reply-select">
+                                <option value="OPEN" th:selected="${c.status == 'OPEN'}">🔴 Open</option>
+                                <option value="PROCESSED" th:selected="${c.status == 'PROCESSED'}">🟡 Processed</option>
+                                <option value="CLOSED" th:selected="${c.status == 'CLOSED'}">🟢 Closed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label-sm">Admin Response</label>
+                            <textarea name="adminReply" class="form-control form-control-sm reply-textarea" rows="2"
+                                      placeholder="Write a response for the user..."
+                                      th:text="${c.adminReply}"></textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="submit" class="btn-send">
+                            <i class="fas fa-paper-plane me-2"></i>Send Response
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- No Filter Result -->
+        <div id="noResult" class="empty-state-box" style="display:none;">
+            <div class="empty-icon-wrap"><i class="fas fa-search"></i></div>
+            <h5 class="fw-bold text-dark mb-1">No results found</h5>
+            <p class="text-muted mb-0">Try a different keyword or filter.</p>
         </div>
     </div>
 
     <style>
-        .admin-complaint-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 16px;
-            margin-bottom: 22px;
-        }
+        /* Section kicker */
         .section-kicker {
             color: #00897B;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 800;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
         }
-        .complaint-stat {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 18px;
+
+        /* ---- STAT CARDS ---- */
+        .cstat-card {
             display: flex;
             align-items: center;
-            gap: 14px;
-            box-shadow: 0 4px 16px rgba(15,23,42,0.05);
-        }
-        .stat-dot {
-            width: 46px;
-            height: 46px;
-            border-radius: 14px;
-        }
-        .dot-open { background: #fee2e2; }
-        .dot-progress { background: #fef3c7; }
-        .dot-closed { background: #dcfce7; }
-        .empty-admin-ticket {
-            background: #fff;
-            border: 1px solid #e2e8f0;
+            gap: 16px;
+            padding: 20px 22px;
             border-radius: 18px;
-            padding: 56px 24px;
-            text-align: center;
-            color: #64748b;
-            box-shadow: 0 4px 16px rgba(15,23,42,0.05);
+            cursor: pointer;
+            transition: all 0.25s;
+            border: 2px solid transparent;
+            user-select: none;
         }
-        .empty-admin-ticket i {
-            font-size: 2.4rem;
-            opacity: 0.4;
+        .cstat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.1);
         }
-        .admin-ticket-list {
-            display: grid;
-            gap: 18px;
+        .cstat-card.active-filter {
+            border-color: currentColor;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
         }
-        .admin-ticket-card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 18px;
-            box-shadow: 0 4px 16px rgba(15,23,42,0.05);
-            overflow: hidden;
+
+        .cstat-total {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            color: #475569;
         }
-        .ticket-content {
-            padding: 22px;
+        .cstat-open {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            color: #dc2626;
         }
-        .ticket-id {
-            color: #64748b;
-            background: #f1f5f9;
-            border-radius: 999px;
-            padding: 5px 10px;
-            font-size: 0.78rem;
-            font-weight: 700;
+        .cstat-closed {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            color: #16a34a;
         }
-        .ticket-status, .ticket-priority {
-            border-radius: 999px;
-            padding: 5px 10px;
-            font-size: 0.74rem;
-            font-weight: 800;
-            letter-spacing: 0.04em;
-        }
-        .status-open { background: #fee2e2; color: #dc2626; }
-        .status-progress { background: #fef3c7; color: #d97706; }
-        .status-closed { background: #dcfce7; color: #16a34a; }
-        .priority-high { background: #ffe4e6; color: #be123c; }
-        .priority-medium { background: #e0f2fe; color: #0369a1; }
-        .priority-low { background: #ecfdf5; color: #047857; }
-        .ticket-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-            color: #64748b;
-            font-size: 0.84rem;
-        }
-        .ticket-message {
-            border-top: 1px solid #f1f5f9;
-            padding-top: 16px;
-            margin-top: 16px;
-        }
-        .ticket-label {
-            color: #334155;
-            font-weight: 700;
-            font-size: 0.82rem;
-            margin-bottom: 6px;
-        }
-        .reply-panel {
-            margin-top: 18px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+
+        .cstat-icon {
+            width: 52px;
+            height: 52px;
             border-radius: 16px;
-            padding: 18px;
+            background: rgba(255,255,255,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
-        .reply-panel .form-control,
-        .reply-panel .form-select {
-            border-radius: 12px;
-            border-color: #cbd5e1;
+        .cstat-body .cstat-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            opacity: 0.75;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
-        .reply-panel .form-control:focus,
-        .reply-panel .form-select:focus {
+        .cstat-body .cstat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-top: 2px;
+        }
+
+        /* ---- SEARCH ---- */
+        .search-wrapper {
+            position: relative;
+        }
+        .search-ico {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .search-field {
+            width: 100%;
+            padding: 13px 18px 13px 44px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 0.92rem;
+            background: #fff;
+            font-family: 'Outfit', sans-serif;
+            color: #1e293b;
+            transition: all 0.2s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .search-field:focus {
+            outline: none;
             border-color: #00897B;
             box-shadow: 0 0 0 4px rgba(0,137,123,0.1);
         }
+
+        /* ---- EMPTY ---- */
+        .empty-state-box {
+            background: #fff;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 20px;
+            padding: 60px 24px;
+            text-align: center;
+            color: #64748b;
+        }
+        .empty-icon-wrap {
+            width: 72px;
+            height: 72px;
+            border-radius: 22px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 2rem;
+            color: #94a3b8;
+        }
+
+        /* ---- TICKET GRID ---- */
+        .ticket-grid {
+            display: grid;
+            gap: 18px;
+        }
+        .ticket-card {
+            background: #fff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(15,23,42,0.05);
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        .ticket-card:hover {
+            border-color: #b2dfdb;
+            box-shadow: 0 8px 28px rgba(0,137,123,0.08);
+        }
+
+        /* Ticket Header */
+        .ticket-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px 10px;
+            gap: 12px;
+        }
+        .ticket-badges {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .badge-id {
+            background: #f1f5f9;
+            color: #64748b;
+            border-radius: 999px;
+            padding: 5px 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .badge-status, .badge-priority {
+            border-radius: 999px;
+            padding: 5px 12px;
+            font-size: 0.73rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
+        .status-open      { background: #fee2e2; color: #dc2626; }
+        .status-processed { background: #fef3c7; color: #d97706; }
+        .status-closed    { background: #dcfce7; color: #16a34a; }
+        .priority-high    { background: #ffe4e6; color: #be123c; }
+        .priority-medium  { background: #e0f2fe; color: #0369a1; }
+        .priority-low     { background: #ecfdf5; color: #047857; }
+
+        .btn-delete {
+            background: #fef2f2;
+            color: #ef4444;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-delete:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        /* Ticket Body */
+        .ticket-body {
+            padding: 6px 22px 18px;
+        }
+        .ticket-subject {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+        .ticket-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            color: #475569;
+        }
+        .meta-chip i { color: #94a3b8; }
+
+        .ticket-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-top: 4px;
+        }
+        .existing-reply {
+            background: #f0fdfa;
+            border: 1px solid #99f6e4;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-top: 12px;
+        }
+        .section-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .description-text {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Reply Form */
+        .reply-form {
+            padding: 18px 22px 20px;
+            border-top: 1.5px solid #f1f5f9;
+            background: #fafbfd;
+        }
+        .form-label-sm {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #475569;
+            display: block;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .reply-select, .reply-textarea {
+            border: 1.5px solid #e2e8f0 !important;
+            border-radius: 10px !important;
+            font-family: 'Outfit', sans-serif !important;
+            font-size: 0.9rem !important;
+            transition: all 0.2s !important;
+        }
+        .reply-select:focus, .reply-textarea:focus {
+            border-color: #00897B !important;
+            box-shadow: 0 0 0 4px rgba(0,137,123,0.1) !important;
+            outline: none !important;
+        }
+        .btn-send {
+            background: linear-gradient(135deg, #00897B, #00695C);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-send:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,137,123,0.3);
+        }
     </style>
+
+    <script>
+        let currentFilter = 'ALL';
+
+        function filterComplaints(status) {
+            if (status !== undefined) {
+                currentFilter = status;
+                // Update active filter visual
+                ['btn-all', 'btn-open', 'btn-closed'].forEach(id => {
+                    document.getElementById(id)?.classList.remove('active-filter');
+                });
+                const map = { 'ALL': 'btn-all', 'OPEN': 'btn-open', 'CLOSED': 'btn-closed' };
+                if (map[status]) document.getElementById(map[status])?.classList.add('active-filter');
+            }
+
+            const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+            const cards = document.querySelectorAll('.ticket-card');
+            let visible = 0;
+
+            cards.forEach(card => {
+                const cardStatus = (card.getAttribute('data-status') || '').toUpperCase();
+                const subject   = (card.getAttribute('data-subject') || '').toLowerCase();
+                const userId    = (card.getAttribute('data-userid') || '').toLowerCase();
+                const category  = (card.getAttribute('data-category') || '').toLowerCase();
+
+                const matchStatus = currentFilter === 'ALL' || cardStatus === currentFilter;
+                const matchSearch = !search || subject.includes(search) || userId.includes(search) || category.includes(search);
+
+                if (matchStatus && matchSearch) {
+                    card.style.display = '';
+                    visible++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            const noResult = document.getElementById('noResult');
+            if (noResult) noResult.style.display = (visible === 0 && cards.length > 0) ? '' : 'none';
+        }
+
+        // Set "All" as default active on load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn-all')?.classList.add('active-filter');
+        });
+    </script>
 </body>
 </html>

@@ -160,4 +160,18 @@ public class UserWebController {
         complaintRepository.save(complaint);
         return "redirect:/user/complaints?success";
     }
+
+    @GetMapping("/complaints/delete/{id}")
+    public String deleteComplaint(@PathVariable Long id, HttpSession session) {
+        Long userId = getUserId(session);
+        if (userId == null) return "redirect:/login";
+
+        // Validasi: hanya bisa hapus complaint milik sendiri
+        complaintRepository.findById(id).ifPresent(c -> {
+            if (c.getUserId().equals(userId)) {
+                complaintRepository.deleteById(id);
+            }
+        });
+        return "redirect:/user/complaints?deleted";
+    }
 }
