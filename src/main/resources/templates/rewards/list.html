@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout}">
+
 <head>
     <title>Rewards - Organix</title>
 </head>
+
 <body>
     <div th:fragment="content">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -20,13 +22,15 @@
                     <div class="col-md-4">
                         <select class="form-select" name="userId" required>
                             <option value="">-- Select User --</option>
-                            <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.name + ' (' + u.points + ' pts)'}">User</option>
+                            <option th:each="u : ${users}" th:value="${u.id}"
+                                th:text="${u.name + ' (' + u.points + ' pts)'}">User</option>
                         </select>
                     </div>
                     <div class="col-md-4">
                         <select class="form-select" name="rewardId" required>
                             <option value="">-- Select Reward --</option>
-                            <option th:each="r : ${rewards}" th:value="${r.id}" th:text="${r.name + ' (' + r.priceInPoints + ' pts)'}">Reward</option>
+                            <option th:each="r : ${rewards}" th:value="${r.id}"
+                                th:text="${r.name + ' (' + r.priceInPoints + ' pts)'}">Reward</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -40,40 +44,177 @@
         </div>
 
         <!-- Rewards Grid -->
-        <div class="row">
-            <div class="col-md-4 mb-4" th:each="reward : ${rewards}">
-                <div class="reward-card card">
-                    <div class="reward-image">
-                        <i class="fas fa-gift"></i>
-                    </div>
-                    <div class="reward-body">
-                        <h5 class="reward-title" th:text="${reward.name}">Reward Name</h5>
-                        <p class="text-muted small" th:text="${reward.description}">Description</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="reward-points" th:text="${reward.priceInPoints + ' pts'}">1000 pts</span>
-                            <span class="reward-stock" th:text="${'Stock: ' + reward.stock}">Stock: 10</span>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6" th:each="reward : ${rewards}">
+                <div class="reward-card-new h-100">
+                    <!-- Image / Icon Area -->
+                    <div class="reward-visual">
+                        <img th:if="${reward.imageUrl != null and !reward.imageUrl.isEmpty()}"
+                            th:src="@{${reward.imageUrl}}" class="reward-img" alt="Reward Image">
+                        <div th:unless="${reward.imageUrl != null and !reward.imageUrl.isEmpty()}"
+                            class="reward-img-placeholder">
+                            <i class="fas fa-gift"></i>
                         </div>
-                        <div class="action-btns mt-3">
-                            <a th:href="@{/rewards/edit/{id}(id=${reward.id})}" class="btn btn-sm btn-primary">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a th:href="@{/rewards/delete/{id}(id=${reward.id})}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this reward?')">
-                                <i class="fas fa-trash"></i>
-                            </a>
+
+                        <!-- Stock Badge -->
+                        <div class="reward-stock-badge"
+                            th:classappend="${reward.stock > 10} ? 'stock-high' : (${reward.stock > 0} ? 'stock-low' : 'stock-out')"
+                            th:text="${reward.stock > 0} ? ${reward.stock} + ' left' : 'Out of Stock'">10 left</div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="reward-content">
+                        <h5 class="fw-bold text-dark mb-1 reward-name" th:text="${reward.name}">Reward Name</h5>
+                        <p class="text-muted mb-3 reward-desc" th:text="${reward.description}">Description</p>
+
+                        <!-- Price + Actions -->
+                        <div class="reward-footer">
+                            <div class="reward-price">
+                                <i class="fas fa-coins me-1" style="color:#fbbf24;font-size:1rem;"></i>
+                                <span class="fw-bold text-dark" th:text="${reward.priceInPoints}">100</span>
+                                <span class="text-muted" style="font-size:0.82rem;"> pts</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a th:href="@{/rewards/edit/{id}(id=${reward.id})}" class="btn btn-sm"
+                                    style="background:#f0fdfa; color:#00897B; border:none; border-radius:8px;">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a th:href="@{/rewards/delete/{id}(id=${reward.id})}" class="btn btn-sm"
+                                    style="background:#fef2f2; color:#ef4444; border:none; border-radius:8px;"
+                                    onclick="return confirm('Delete this reward?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <div th:if="${#lists.isEmpty(rewards)}" class="col-12">
-                <div class="empty-state">
-                    <i class="fas fa-gift"></i>
-                    <h4>No rewards available</h4>
-                    <p>Add some rewards to get started</p>
-                    <a th:href="@{/rewards/new}" class="btn btn-success">Add Reward</a>
+                <div class="text-center py-5">
+                    <div class="reward-empty-icon mx-auto mb-4"
+                        style="width: 90px; height: 90px; background: #f0fdfa; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: #00897B;">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">No rewards available</h5>
+                    <p class="text-muted mb-4">Add some rewards to get started</p>
+                    <a th:href="@{/rewards/new}" class="btn px-4 py-2 text-white fw-bold"
+                        style="background: linear-gradient(135deg, #00897B, #26A69A); border-radius: 12px; box-shadow: 0 4px 14px rgba(0,137,123,0.3);">
+                        <i class="fas fa-plus me-1"></i> Add Reward
+                    </a>
                 </div>
             </div>
         </div>
+
+        <!-- Inline Styles for Premium Cards -->
+        <style>
+            .reward-card-new {
+                background: #fff;
+                border-radius: 20px;
+                overflow: hidden;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+                border: 1.5px solid #f1f5f9;
+                transition: all 0.3s;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .reward-card-new:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+                border-color: #00897B;
+            }
+
+            .reward-visual {
+                height: 180px;
+                position: relative;
+                background: linear-gradient(135deg, #f0fdfa, #e0f2fe);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .reward-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center;
+                display: block;
+            }
+
+            .reward-img-placeholder {
+                font-size: 3.5rem;
+                color: #00897B;
+                opacity: 0.35;
+            }
+
+            .reward-stock-badge {
+                position: absolute;
+                top: 14px;
+                right: 14px;
+                padding: 4px 14px;
+                border-radius: 30px;
+                font-size: 0.75rem;
+                font-weight: 700;
+            }
+
+            .stock-high {
+                background: #dcfce7;
+                color: #16a34a;
+            }
+
+            .stock-low {
+                background: #fef3c7;
+                color: #d97706;
+            }
+
+            .stock-out {
+                background: #fee2e2;
+                color: #dc2626;
+            }
+
+            .reward-content {
+                padding: 20px;
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .reward-name {
+                font-size: 1.1rem;
+                line-height: 1.3;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .reward-desc {
+                font-size: 0.85rem;
+                line-height: 1.5;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                flex-grow: 1;
+            }
+
+            .reward-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: auto;
+                padding-top: 14px;
+                border-top: 1px solid #f1f5f9;
+            }
+
+            .reward-price {
+                font-size: 1.1rem;
+                display: flex;
+                align-items: center;
+            }
+        </style>
     </div>
 </body>
+
 </html>

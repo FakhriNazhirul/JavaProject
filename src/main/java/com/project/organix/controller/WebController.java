@@ -7,8 +7,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -209,11 +210,29 @@ public class WebController {
     }
 
     @PostMapping("/rewards/save")
-    public String saveReward(@ModelAttribute("reward") RewardItem reward, BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            model.addAttribute("pageTitle", reward.getId() != null ? "Edit Reward" : "New Reward");
-            model.addAttribute("isEdit", reward.getId() != null);
-            return "rewards/form";
+    public String saveReward(@ModelAttribute("reward") RewardItem reward,
+                             @RequestParam(value = "imageFile", required = false) org.springframework.web.multipart.MultipartFile imageFile,
+                             @Value("${app.upload.dir:uploads/rewards}") String uploadDir,
+                             Model model) {
+        // Handle file upload jika ada gambar yang diupload
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir);
+                if (!java.nio.file.Files.exists(uploadPath)) {
+                    java.nio.file.Files.createDirectories(uploadPath);
+                }
+                String originalName = imageFile.getOriginalFilename();
+                String ext = "";
+                if (originalName != null && originalName.contains(".")) {
+                    ext = originalName.substring(originalName.lastIndexOf("."));
+                }
+                String fileName = java.util.UUID.randomUUID() + ext;
+                java.nio.file.Path filePath = uploadPath.resolve(fileName);
+                java.nio.file.Files.copy(imageFile.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                reward.setImageUrl("/uploads/rewards/" + fileName);
+            } catch (java.io.IOException e) {
+                e.printStackTrace();
+            }
         }
         rewardItemRepository.save(reward);
         return "redirect:/rewards?success";
