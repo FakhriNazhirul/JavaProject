@@ -36,6 +36,23 @@
                             <input type="number" class="form-control" th:field="*{totalPoints}" readonly>
                         </div>
                     </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                            Tempat Pembuangan Sampah (TPS)
+                        </label>
+                        <select class="form-select" th:field="*{tempatPembuanganId}" required>
+                            <option value="">-- Pilih Tempat Pembuangan Sampah --</option>
+                            <option th:each="tps : ${tempatList}"
+                                    th:value="${tps.id}"
+                                    th:text="${tps.nama + ' - ' + tps.kota + ' (' + tps.status + ')'}">TPS</option>
+                        </select>
+                        <div class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Pilih lokasi TPS tempat sampah akan dibuang
+                        </div>
+                    </div>
                     
                     <div class="mb-3">
                         <label class="form-label">Status</label>
@@ -57,8 +74,6 @@
         </div>
         
         <script th:inline="javascript">
-            // Simple points calculation - multiply by 100 for now
-            // In production, this would fetch the category's pointsPerKg
             function calculatePoints() {
                 const weight = parseFloat(document.getElementById('weight').value) || 0;
                 document.getElementById('totalPoints').value = weight * 100;

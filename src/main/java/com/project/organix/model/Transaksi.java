@@ -26,4 +26,6 @@ public class Transaksi extends BaseEntity {
 
     @Column(length = 50)
     private String status = "PENDING";
+
+    private Long tempatPembuanganId;
 }

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout}">
+<head>
+    <title>Form TPS - Organix</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="card">
+            <div class="card-header" th:text="${isEdit} ? 'Edit Tempat Pembuangan Sampah' : 'Tambah Tempat Pembuangan Sampah'">Form TPS</div>
+            <div class="card-body">
+                <form th:action="@{/tps/save}" th:object="${tps}" method="post">
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="mb-3">
+                        <label class="form-label">Nama TPS <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" th:field="*{nama}"
+                               placeholder="Contoh: TPS Pasar Minggu" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Alamat</label>
+                        <input type="text" class="form-control" th:field="*{alamat}"
+                               placeholder="Contoh: Jl. Raya Pasar Minggu No.1">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Kota <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{kota}"
+                                   placeholder="Contoh: Jakarta Selatan" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" th:field="*{status}">
+                                <option value="AKTIF">AKTIF</option>
+                                <option value="TIDAK AKTIF">TIDAK AKTIF</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Simpan
+                        </button>
+                        <a th:href="@{/tps}" class="btn btn-secondary">Batal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

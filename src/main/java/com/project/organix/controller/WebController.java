@@ -3,6 +3,7 @@ package com.project.organix.controller;
 import com.project.organix.model.*;
 import com.project.organix.repository.*;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +23,7 @@ public class WebController {
     @Autowired private RewardItemRepository rewardItemRepository;
     @Autowired private ComplaintRepository complaintRepository;
     @Autowired private KategoriSampahRepository kategoriSampahRepository;
+    @Autowired private TempatPembuanganRepository tempatPembuanganRepository;
 
     @ModelAttribute
     public void addCurrentUri(HttpServletRequest request, Model model) {
@@ -39,7 +41,7 @@ public class WebController {
         model.addAttribute("openComplaints", complaintRepository.findAll().stream()
                 .filter(c -> "OPEN".equalsIgnoreCase(c.getStatus()))
                 .count());
-        
+
         List<Transaksi> recentTransactions = transaksiRepository.findAll();
         recentTransactions.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
         if (recentTransactions.size() > 5) {
@@ -53,7 +55,7 @@ public class WebController {
             recentComplaints = recentComplaints.subList(0, 5);
         }
         model.addAttribute("recentComplaints", recentComplaints);
-        
+
         return "index";
     }
 
@@ -86,8 +88,14 @@ public class WebController {
         return "redirect:/users?success";
     }
 
+    @Transactional
     @GetMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable Long id) {
+        // Hapus semua data terkait user terlebih dahulu
+        // agar total points di dashboard terupdate dengan benar
+        transaksiRepository.deleteAll(transaksiRepository.findByUserId(id));
+        pointHasilRepository.deleteAll(pointHasilRepository.findByUserId(id));
+        complaintRepository.deleteAll(complaintRepository.findByUserId(id));
         userRepository.deleteById(id);
         return "redirect:/users?deleted";
     }
@@ -98,6 +106,7 @@ public class WebController {
         model.addAttribute("transactions", transaksiRepository.findAll());
         model.addAttribute("users", userRepository.findAll());
         model.addAttribute("kategori", kategoriSampahRepository.findAll());
+        model.addAttribute("tempatList", tempatPembuanganRepository.findAll());
         return "transactions/list";
     }
 
@@ -107,6 +116,7 @@ public class WebController {
         model.addAttribute("transaction", new Transaksi());
         model.addAttribute("users", userRepository.findAll());
         model.addAttribute("kategori", kategoriSampahRepository.findAll());
+        model.addAttribute("tempatList", tempatPembuanganRepository.findAll());
         return "transactions/form";
     }
 
@@ -116,12 +126,12 @@ public class WebController {
             transaction.setTotalPoints(BigDecimal.ZERO);
         }
         Transaksi saved = transaksiRepository.save(transaction);
-        
+
         User user = userRepository.findById(transaction.getUserId()).orElse(null);
         if (user != null) {
             user.setPoints(user.getPoints() + transaction.getTotalPoints().intValue());
             userRepository.save(user);
-            
+
             PointHasil ph = new PointHasil();
             ph.setUserId(user.getId());
             ph.setPoints(transaction.getTotalPoints());
@@ -129,7 +139,7 @@ public class WebController {
             ph.setDescription("Transaction #" + saved.getId());
             pointHasilRepository.save(ph);
         }
-        
+
         return "redirect:/transactions?success";
     }
 
@@ -161,14 +171,14 @@ public class WebController {
         if (user != null && user.getPoints() >= points.intValue()) {
             user.setPoints(user.getPoints() - points.intValue());
             userRepository.save(user);
-            
+
             PointHasil ph = new PointHasil();
             ph.setUserId(userId);
             ph.setPoints(new BigDecimal(-points));
             ph.setType("DEDUCT");
             ph.setDescription("Manual point redemption");
             pointHasilRepository.save(ph);
-            
+
             return "redirect:/points/user/" + userId + "?success";
         }
         return "redirect:/points?error";
@@ -219,23 +229,23 @@ public class WebController {
     public String redeemReward(@RequestParam Long userId, @RequestParam Long rewardId, @RequestParam(defaultValue = "1") int quantity) {
         User user = userRepository.findById(userId).orElse(null);
         RewardItem reward = rewardItemRepository.findById(rewardId).orElse(null);
-        
+
         if (user != null && reward != null) {
             BigDecimal totalPoints = reward.getPriceInPoints().multiply(BigDecimal.valueOf(quantity));
             if (user.getPoints() >= totalPoints.intValue() && reward.getStock() >= quantity) {
                 user.setPoints(user.getPoints() - totalPoints.intValue());
                 userRepository.save(user);
-                
+
                 reward.setStock(reward.getStock() - quantity);
                 rewardItemRepository.save(reward);
-                
+
                 PointHasil ph = new PointHasil();
                 ph.setUserId(userId);
                 ph.setPoints(totalPoints.negate());
                 ph.setType("REDEEM");
                 ph.setDescription("Redeem: " + reward.getName() + " x" + quantity);
                 pointHasilRepository.save(ph);
-                
+
                 return "redirect:/rewards?success";
             }
         }
@@ -311,4 +321,42 @@ public class WebController {
         kategoriSampahRepository.deleteById(id);
         return "redirect:/kategori?deleted";
     }
+
+    // ===================== TEMPAT PEMBUANGAN SAMPAH (TPS) =====================
+
+    @GetMapping("/tps")
+    public String tpsList(Model model) {
+        model.addAttribute("pageTitle", "Tempat Pembuangan Sampah");
+        model.addAttribute("tpsList", tempatPembuanganRepository.findAll());
+        return "tps/list";
+    }
+
+    @GetMapping("/tps/new")
+    public String newTps(Model model) {
+        model.addAttribute("pageTitle", "Tambah TPS");
+        model.addAttribute("tps", new TempatPembuangan());
+        model.addAttribute("isEdit", false);
+        return "tps/form";
+    }
+
+    @GetMapping("/tps/edit/{id}")
+    public String editTps(@PathVariable Long id, Model model) {
+        model.addAttribute("pageTitle", "Edit TPS");
+        tempatPembuanganRepository.findById(id).ifPresent(t -> model.addAttribute("tps", t));
+        model.addAttribute("isEdit", true);
+        return "tps/form";
+    }
+
+    @PostMapping("/tps/save")
+    public String saveTps(@ModelAttribute TempatPembuangan tps) {
+        tempatPembuanganRepository.save(tps);
+        return "redirect:/tps?success";
+    }
+
+    @GetMapping("/tps/delete/{id}")
+    public String deleteTps(@PathVariable Long id) {
+        tempatPembuanganRepository.deleteById(id);
+        return "redirect:/tps?deleted";
+    }
 }
+

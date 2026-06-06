@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout}">
+<head>
+    <title>Tempat Pembuangan Sampah - Organix</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div></div>
+            <a th:href="@{/tps/new}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Tambah TPS
+            </a>
+        </div>
+
+        <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show mb-3">
+            <i class="fas fa-check-circle me-2"></i> Data TPS berhasil disimpan.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${param.deleted}" class="alert alert-warning alert-dismissible fade show mb-3">
+            <i class="fas fa-trash me-2"></i> Data TPS berhasil dihapus.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama TPS</th>
+                            <th>Alamat</th>
+                            <th>Kota</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="tps : ${tpsList}">
+                            <td th:text="${tps.id}">1</td>
+                            <td>
+                                <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                <span th:text="${tps.nama}">TPS Name</span>
+                            </td>
+                            <td th:text="${tps.alamat}">Alamat</td>
+                            <td th:text="${tps.kota}">Kota</td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${tps.status == 'AKTIF'} ? 'bg-success' : 'bg-secondary'"
+                                      th:text="${tps.status}">AKTIF</span>
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <a th:href="@{/tps/edit/{id}(id=${tps.id})}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a th:href="@{/tps/delete/{id}(id=${tps.id})}" class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Hapus TPS ini?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(tpsList)}">
+                            <td colspan="6" class="text-center py-4">
+                                <i class="fas fa-map-marker-alt d-block mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
+                                Belum ada data TPS
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
