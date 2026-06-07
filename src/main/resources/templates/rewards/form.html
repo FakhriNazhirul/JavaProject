@@ -1,55 +1,370 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout}">
 <head>
-    <title>Reward Form - Organix</title>
+    <title th:text="${isEdit} ? 'Edit Reward - Organix' : 'Tambah Reward - Organix'">Reward Form - Organix</title>
 </head>
 <body>
     <div th:fragment="content">
-        <div class="card">
-            <div class="card-header" th:text="${isEdit} ? 'Edit Reward' : 'Add New Reward'">Reward Form</div>
-            <div class="card-body">
-                <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger">
-                    Please correct the errors below.
+
+        <!-- Back button -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a th:href="@{/rewards}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Kembali ke Rewards
+            </a>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <!-- Main Form Card -->
+                <div class="card" style="border-radius:20px; box-shadow: 0 8px 32px rgba(0,137,123,0.10); overflow:hidden;">
+
+                    <!-- Card Header -->
+                    <div class="card-header d-flex align-items-center gap-3"
+                         style="padding: 24px 30px; background: linear-gradient(135deg, #00897B, #26A69A); border:none;">
+                        <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.2);
+                                    display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0 text-white"
+                                style="font-weight:700;"
+                                th:text="${isEdit} ? 'Edit Reward Item' : 'Tambah Reward Baru'">Reward Form</h5>
+                            <small class="text-white" style="opacity:0.8;">
+                                Isi semua informasi reward dengan lengkap
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="card-body" style="padding: 32px 30px;">
+
+                        <!-- Form: gunakan enctype multipart untuk mendukung upload file -->
+                        <form th:action="@{/rewards/save}"
+                              th:object="${reward}"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            <input type="hidden" th:field="*{id}">
+
+                            <!-- Reward Name -->
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold" for="rewardName">
+                                    <i class="fas fa-tag me-1" style="color:#00897B;"></i>
+                                    Nama Reward <span class="text-danger">*</span>
+                                </label>
+                                <input type="text"
+                                       id="rewardName"
+                                       class="form-control form-control-lg"
+                                       th:field="*{name}"
+                                       placeholder="Contoh: Eco Tote Bag"
+                                       required
+                                       style="border-radius:12px; border:1.5px solid #e2e8f0;">
+                                <div class="form-text text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Nama reward yang akan ditampilkan kepada pengguna
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold" for="rewardDesc">
+                                    <i class="fas fa-align-left me-1" style="color:#00897B;"></i>
+                                    Deskripsi
+                                </label>
+                                <textarea id="rewardDesc"
+                                          class="form-control"
+                                          th:field="*{description}"
+                                          rows="3"
+                                          placeholder="Deskripsikan reward ini secara singkat..."
+                                          style="border-radius:12px; border:1.5px solid #e2e8f0; resize:vertical;"></textarea>
+                            </div>
+
+                            <!-- Points & Stock Row -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold" for="rewardPoints">
+                                        <i class="fas fa-coins me-1 text-warning"></i>
+                                        Harga (Poin) <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"
+                                              style="border-radius:12px 0 0 12px; background:#f0fdfa; color:#00897B; border:1.5px solid #e2e8f0; border-right:none; font-weight:600;">
+                                            <i class="fas fa-coins"></i>
+                                        </span>
+                                        <input type="number"
+                                               id="rewardPoints"
+                                               class="form-control"
+                                               th:field="*{priceInPoints}"
+                                               placeholder="500"
+                                               min="1"
+                                               step="1"
+                                               required
+                                               style="border-radius:0 12px 12px 0; border:1.5px solid #e2e8f0; border-left:none;">
+                                    </div>
+                                    <div class="form-text text-muted">Jumlah poin yang diperlukan untuk redeem</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold" for="rewardStock">
+                                        <i class="fas fa-boxes me-1 text-primary"></i>
+                                        Stok <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"
+                                              style="border-radius:12px 0 0 12px; background:#eff6ff; color:#3b82f6; border:1.5px solid #e2e8f0; border-right:none; font-weight:600;">
+                                            <i class="fas fa-boxes"></i>
+                                        </span>
+                                        <input type="number"
+                                               id="rewardStock"
+                                               class="form-control"
+                                               th:field="*{stock}"
+                                               placeholder="10"
+                                               min="0"
+                                               required
+                                               style="border-radius:0 12px 12px 0; border:1.5px solid #e2e8f0; border-left:none;">
+                                    </div>
+                                    <div class="form-text text-muted">Jumlah stok tersedia</div>
+                                </div>
+                            </div>
+
+                            <!-- ===== GAMBAR REWARD ===== -->
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-image me-1" style="color:#00897B;"></i>
+                                    Gambar Reward <span class="text-muted fw-normal">(opsional)</span>
+                                </label>
+
+                                <!-- Tab pilih sumber gambar -->
+                                <ul class="nav nav-tabs mb-3" id="imgSourceTab" role="tablist"
+                                    style="border-bottom: 2px solid #e2e8f0;">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="tab-upload" data-bs-toggle="tab"
+                                                data-bs-target="#panel-upload" type="button" role="tab"
+                                                style="border-radius:10px 10px 0 0; font-weight:600; font-size:0.88rem;">
+                                            <i class="fas fa-folder-open me-1"></i> Upload dari Folder
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="tab-url" data-bs-toggle="tab"
+                                                data-bs-target="#panel-url" type="button" role="tab"
+                                                style="border-radius:10px 10px 0 0; font-weight:600; font-size:0.88rem;">
+                                            <i class="fas fa-link me-1"></i> Dari URL
+                                        </button>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content" id="imgSourceTabContent">
+
+                                    <!-- Tab 1: Upload dari folder -->
+                                    <div class="tab-pane fade show active" id="panel-upload" role="tabpanel">
+                                        <!-- Drop zone / file picker -->
+                                        <div id="dropZone"
+                                             onclick="document.getElementById('imageFile').click()"
+                                             style="border: 2.5px dashed #b2dfdb; border-radius:16px; padding: 36px 20px;
+                                                    background: #f0fdfa; text-align:center; cursor:pointer;
+                                                    transition: all 0.2s;">
+                                            <div id="dropZoneDefault">
+                                                <div style="width:56px;height:56px;border-radius:16px;background:rgba(0,137,123,0.12);
+                                                            display:flex;align-items:center;justify-content:center;
+                                                            margin: 0 auto 14px; font-size:1.6rem; color:#00897B;">
+                                                    <i class="fas fa-cloud-upload-alt"></i>
+                                                </div>
+                                                <p class="mb-1 fw-semibold" style="color:#00897B;">Klik untuk pilih gambar</p>
+                                                <p class="mb-0 text-muted" style="font-size:0.82rem;">
+                                                    atau seret &amp; lepas file di sini
+                                                </p>
+                                                <p class="mb-0 text-muted" style="font-size:0.78rem; margin-top:6px;">
+                                                    JPG, PNG, WEBP &bull; Maks. 10MB
+                                                </p>
+                                            </div>
+                                            <!-- Preview after pick -->
+                                            <div id="dropZonePreview" style="display:none;">
+                                                <img id="uploadedPreview" src="" alt="Preview"
+                                                     style="max-height:160px; border-radius:10px; object-fit:contain; max-width:100%;">
+                                                <p class="mt-2 mb-0 text-muted" id="uploadedFileName" style="font-size:0.82rem;"></p>
+                                                <button type="button" onclick="clearFileUpload(event)"
+                                                        class="btn btn-sm btn-outline-danger mt-2"
+                                                        style="border-radius:8px;">
+                                                    <i class="fas fa-times me-1"></i> Hapus
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- Input file sebenarnya (hidden) -->
+                                        <input type="file"
+                                               id="imageFile"
+                                               name="imageFile"
+                                               accept="image/*"
+                                               class="d-none"
+                                               onchange="handleFileSelect(this)">
+                                    </div>
+
+                                    <!-- Tab 2: URL -->
+                                    <div class="tab-pane fade" id="panel-url" role="tabpanel">
+                                        <div class="input-group mt-1">
+                                            <span class="input-group-text"
+                                                  style="border-radius:12px 0 0 12px; background:#f0fdfa; color:#00897B; border:1.5px solid #e2e8f0; border-right:none;">
+                                                <i class="fas fa-link"></i>
+                                            </span>
+                                            <input type="text"
+                                                   id="rewardImageUrl"
+                                                   name="imageUrl"
+                                                   class="form-control"
+                                                   th:value="*{imageUrl}"
+                                                   placeholder="https://example.com/gambar.jpg"
+                                                   oninput="updateUrlPreview(this.value)"
+                                                   style="border-radius:0 12px 12px 0; border:1.5px solid #e2e8f0; border-left:none;">
+                                        </div>
+                                        <div class="form-text text-muted">Link gambar reward (jpg, png, webp, dll.)</div>
+                                        <!-- URL Preview -->
+                                        <div id="urlPreviewBox" class="mt-3" style="display:none;">
+                                            <img id="urlPreview" src="" alt="Preview URL"
+                                                 style="max-height:140px; max-width:200px; border-radius:10px; object-fit:cover;
+                                                        border:2px solid #e2e8f0; display:block;">
+                                        </div>
+                                    </div>
+
+                                </div><!-- /tab-content -->
+
+                                <!-- Hidden field: simpan URL akhir yang akan dikirim -->
+                                <input type="hidden" id="finalImageUrl" th:field="*{imageUrl}">
+                            </div>
+                            <!-- ===== /GAMBAR REWARD ===== -->
+
+                            <!-- Divider -->
+                            <hr style="border-color:#f1f5f9; margin: 8px 0 24px;">
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-3 flex-wrap">
+                                <button type="submit"
+                                        class="btn btn-lg d-flex align-items-center gap-2"
+                                        style="border-radius:12px; padding:12px 28px; font-weight:600;
+                                               background: linear-gradient(135deg, #00897B, #26A69A);
+                                               border:none; color:#fff; box-shadow: 0 4px 14px rgba(0,137,123,0.3);">
+                                    <i class="fas fa-save"></i>
+                                    <span th:text="${isEdit} ? 'Update Reward' : 'Simpan Reward'">Simpan Reward</span>
+                                </button>
+                                <a th:href="@{/rewards}"
+                                   class="btn btn-lg d-flex align-items-center gap-2"
+                                   style="border-radius:12px; padding:12px 28px; font-weight:600;
+                                          background:#f1f5f9; color:#64748b; border:none;">
+                                    <i class="fas fa-times"></i> Batal
+                                </a>
+                            </div>
+
+                        </form>
+                    </div>
                 </div>
-                <form th:action="@{/rewards/save}" th:object="${reward}" method="post">
-                    <input type="hidden" th:field="*{id}">
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Reward Name</label>
-                        <input type="text" class="form-control" th:field="*{name}" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea class="form-control" th:field="*{description}" rows="3"></textarea>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Price (Points)</label>
-                            <input type="number" step="0.01" class="form-control" th:field="*{priceInPoints}" required>
-                            <div th:if="${#fields.hasErrors('priceInPoints')}" th:errors="*{priceInPoints}" class="text-danger small">Error</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Stock</label>
-                            <input type="number" class="form-control" th:field="*{stock}" required>
+
+                <!-- Tips Card -->
+                <div class="card mt-3" style="border-radius:16px; border: 1.5px solid #e0f2f1; background:#f0fdfa;">
+                    <div class="card-body py-3 px-4">
+                        <div class="d-flex align-items-start gap-3">
+                            <i class="fas fa-lightbulb text-warning mt-1"></i>
+                            <div>
+                                <p class="mb-1 fw-semibold text-dark" style="font-size:0.9rem;">Tips Pengisian Reward</p>
+                                <ul class="mb-0 text-muted" style="font-size:0.82rem; padding-left:16px;">
+                                    <li>Upload gambar dari folder komputer Anda atau masukkan URL gambar</li>
+                                    <li>Ukuran gambar yang direkomendasikan: 400×300 px atau lebih besar</li>
+                                    <li>Harga poin minimal 1 poin, stok minimal 0 (berarti habis)</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Image URL (optional)</label>
-                        <input type="text" class="form-control" th:field="*{imageUrl}" placeholder="https://...">
-                    </div>
-                    
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save"></i> Save
-                        </button>
-                        <a th:href="@{/rewards}" class="btn btn-secondary">Cancel</a>
-                    </div>
-                </form>
+                </div>
+
             </div>
         </div>
+
+        <script>
+            // ====== File Upload dari Folder ======
+            function handleFileSelect(input) {
+                const file = input.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('uploadedPreview').src = e.target.result;
+                    document.getElementById('uploadedFileName').textContent = file.name + ' (' + formatBytes(file.size) + ')';
+                    document.getElementById('dropZoneDefault').style.display = 'none';
+                    document.getElementById('dropZonePreview').style.display = 'block';
+                    // Kosongkan URL field supaya tidak konflik
+                    document.getElementById('rewardImageUrl').value = '';
+                    document.getElementById('finalImageUrl').value = '';
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function clearFileUpload(event) {
+                event.stopPropagation();
+                document.getElementById('imageFile').value = '';
+                document.getElementById('uploadedPreview').src = '';
+                document.getElementById('uploadedFileName').textContent = '';
+                document.getElementById('dropZoneDefault').style.display = 'block';
+                document.getElementById('dropZonePreview').style.display = 'none';
+            }
+
+            function formatBytes(bytes) {
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+                return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            }
+
+            // Drag & Drop support
+            const dropZone = document.getElementById('dropZone');
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                dropZone.style.borderColor = '#00897B';
+                dropZone.style.background = '#e0f2f1';
+            });
+            dropZone.addEventListener('dragleave', function() {
+                dropZone.style.borderColor = '#b2dfdb';
+                dropZone.style.background = '#f0fdfa';
+            });
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                dropZone.style.borderColor = '#b2dfdb';
+                dropZone.style.background = '#f0fdfa';
+                const dt = e.dataTransfer;
+                if (dt.files.length) {
+                    const input = document.getElementById('imageFile');
+                    // Assign file ke input
+                    const dT = new DataTransfer();
+                    dT.items.add(dt.files[0]);
+                    input.files = dT.files;
+                    handleFileSelect(input);
+                }
+            });
+
+            // ====== URL Preview ======
+            function updateUrlPreview(url) {
+                const box = document.getElementById('urlPreviewBox');
+                const img = document.getElementById('urlPreview');
+                const finalUrl = document.getElementById('finalImageUrl');
+                if (url && url.trim()) {
+                    img.src = url.trim();
+                    box.style.display = 'block';
+                    finalUrl.value = url.trim();
+                    // Kosongkan file input
+                    document.getElementById('imageFile').value = '';
+                    document.getElementById('dropZoneDefault').style.display = 'block';
+                    document.getElementById('dropZonePreview').style.display = 'none';
+                } else {
+                    box.style.display = 'none';
+                    finalUrl.value = '';
+                }
+            }
+
+            // Inisialisasi preview URL jika edit mode
+            window.addEventListener('load', function() {
+                const urlInput = document.getElementById('rewardImageUrl');
+                if (urlInput && urlInput.value.trim()) {
+                    updateUrlPreview(urlInput.value.trim());
+                    // Pindah ke tab URL jika ada data URL
+                    document.getElementById('tab-url').click();
+                }
+            });
+        </script>
+
     </div>
 </body>
 </html>

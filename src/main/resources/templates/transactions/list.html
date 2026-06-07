@@ -20,6 +20,7 @@
                             <th>ID</th>
                             <th>User</th>
                             <th>Category</th>
+                            <th>TPS</th>
                             <th>Weight (kg)</th>
                             <th>Points Earned</th>
                             <th>Status</th>
@@ -30,8 +31,22 @@
                     <tbody>
                         <tr th:each="tx : ${transactions}">
                             <td th:text="${tx.id}">1</td>
-                            <td th:text="${tx.userId}">1</td>
-                            <td th:text="${tx.kategoriSampahId}">1</td>
+                            <td>
+                                <span th:each="u : ${users}" th:if="${u.id == tx.userId}" th:text="${u.name}">User</span>
+                            </td>
+                            <td>
+                                <span th:each="k : ${kategori}" th:if="${k.id == tx.kategoriSampahId}" th:text="${k.name}">Category</span>
+                            </td>
+                            <td>
+                                <span th:if="${tx.tempatPembuanganId != null}">
+                                    <span th:each="tps : ${tempatList}" th:if="${tps.id == tx.tempatPembuanganId}">
+                                        <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                        <span th:text="${tps.nama}">TPS</span>
+                                        <small class="text-muted d-block" th:text="${tps.kota}">Kota</small>
+                                    </span>
+                                </span>
+                                <span th:if="${tx.tempatPembuanganId == null}" class="text-muted">-</span>
+                            </td>
                             <td th:text="${tx.weight}">10.5</td>
                             <td>
                                 <span class="badge bg-success" th:text="${tx.totalPoints}">1050</span>
@@ -47,7 +62,7 @@
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(transactions)}">
-                            <td colspan="8" class="text-center py-4">
+                            <td colspan="9" class="text-center py-4">
                                 <i class="fas fa-recycle d-block mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
                                 No transactions yet
                             </td>

@@ -13,8 +13,8 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String uri = request.getRequestURI();
         
-        // Skip for API, assets, login, and registration
-        if (uri.startsWith("/api") || uri.startsWith("/css") || uri.startsWith("/js") || uri.startsWith("/login") || uri.startsWith("/register") || uri.startsWith("/error")) {
+        // Skip for API, assets, uploads, login, and registration
+        if (uri.startsWith("/api") || uri.startsWith("/css") || uri.startsWith("/js") || uri.startsWith("/uploads") || uri.startsWith("/login") || uri.startsWith("/register") || uri.startsWith("/error")) {
             return true;
         }
 

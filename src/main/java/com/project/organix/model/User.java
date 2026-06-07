@@ -22,4 +22,7 @@ public class User extends BaseEntity {
     private int points = 0;
 
     private String role = "USER";
+
+    @Column(length = 200)
+    private String domisili;
 }
